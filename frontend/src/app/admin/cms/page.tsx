@@ -246,7 +246,7 @@ function SettingsEditor({ settings, onSave }: { settings: SiteSetting[]; onSave:
     }
   };
 
-  const groups = [...new Set(settings.map((s) => s.group))];
+  const groups = Array.from(new Set(settings.map((s) => s.group)));
 
   return (
     <div className="space-y-8">
