@@ -176,3 +176,47 @@ model Review {
   @@unique([userId, productId])
   @@map("reviews")
 }
+
+// ─── CMS ─────────────────────────────────────────────────────────────────────
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  type      String   @default("text") // text | image | url | color | boolean
+  label     String
+  group     String   @default("general") // general | contact | social | seo
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("site_settings")
+}
+
+model CmsSection {
+  id           String   @id @default(cuid())
+  key          String   @unique
+  label        String
+  type         String   @default("hero") // hero | banner | text | announcement
+  isActive     Boolean  @default(true)
+  order        Int      @default(0)
+  // Text content (bilingual)
+  heading      String?  @db.Text
+  headingEs    String?  @db.Text
+  subheading   String?  @db.Text
+  subheadingEs String?  @db.Text
+  badge        String?
+  badgeEs      String?
+  body         String?  @db.Text
+  bodyEs       String?  @db.Text
+  // Media
+  imageUrl     String?
+  // CTA buttons
+  ctaText      String?
+  ctaTextEs    String?
+  ctaUrl       String?
+  ctaText2     String?
+  ctaText2Es   String?
+  ctaUrl2      String?
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  @@map("cms_sections")
+}

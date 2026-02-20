@@ -219,4 +219,67 @@ router.patch('/users/:id', async (req: AuthRequest, res) => {
   }
 });
 
+// ─── CMS SECTIONS ────────────────────────────────────────────────────────────
+
+router.get('/cms/sections', async (_req, res) => {
+  try {
+    const sections = await prisma.cmsSection.findMany({ orderBy: { order: 'asc' } });
+    res.json(sections);
+  } catch {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.post('/cms/sections', async (req, res) => {
+  try {
+    const section = await prisma.cmsSection.create({ data: req.body });
+    res.status(201).json(section);
+  } catch (err: unknown) {
+    if ((err as { code?: string }).code === 'P2002') return res.status(409).json({ error: 'Section key already exists' });
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.patch('/cms/sections/:key', async (req, res) => {
+  try {
+    const section = await prisma.cmsSection.update({ where: { key: req.params.key }, data: req.body });
+    res.json(section);
+  } catch {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.delete('/cms/sections/:key', async (req, res) => {
+  try {
+    await prisma.cmsSection.delete({ where: { key: req.params.key } });
+    res.json({ message: 'Section deleted' });
+  } catch {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── CMS SETTINGS ────────────────────────────────────────────────────────────
+
+router.get('/cms/settings', async (_req, res) => {
+  try {
+    const settings = await prisma.siteSetting.findMany({ orderBy: [{ group: 'asc' }, { label: 'asc' }] });
+    res.json(settings);
+  } catch {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.patch('/cms/settings/:key', async (req, res) => {
+  try {
+    const setting = await prisma.siteSetting.upsert({
+      where: { key: req.params.key },
+      update: { value: req.body.value },
+      create: { key: req.params.key, value: req.body.value, label: req.body.label || req.params.key, group: req.body.group || 'general', type: req.body.type || 'text' },
+    });
+    res.json(setting);
+  } catch {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 export default router;

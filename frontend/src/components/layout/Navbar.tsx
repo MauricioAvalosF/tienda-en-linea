@@ -7,6 +7,7 @@ import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import { useAuthStore } from '@/store/auth.store';
 import { useCartStore } from '@/store/cart.store';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar() {
   const t = useTranslations('nav');
@@ -19,21 +20,24 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b shadow-sm">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="text-xl font-bold text-primary-600">
-          Tienda
+        <Link href="/" className="text-xl font-bold text-amber-600 tracking-wide">
+          Scentify
         </Link>
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/" className="text-sm font-medium hover:text-primary-600 transition-colors">{t('home')}</Link>
-          <Link href="/products" className="text-sm font-medium hover:text-primary-600 transition-colors">{t('products')}</Link>
-          {user?.role === 'ADMIN' && (
-            <Link href="/admin" className="text-sm font-medium text-primary-600 hover:text-primary-700">{t('admin')}</Link>
-          )}
+          <Link href="/" className="text-sm font-medium hover:text-amber-600 transition-colors">{t('home')}</Link>
+          <Link href="/products" className="text-sm font-medium hover:text-amber-600 transition-colors">{t('products')}</Link>
+          <Link href="/products?category=niche" className="text-sm font-medium hover:text-amber-600 transition-colors">Niche</Link>
+          <Link href="/products?category=designer" className="text-sm font-medium hover:text-amber-600 transition-colors">Designer</Link>
+          <Link href="/products?category=arabic" className="text-sm font-medium hover:text-amber-600 transition-colors">Arabic</Link>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {/* Language switcher */}
+          <LanguageSwitcher />
+
           {/* Theme toggle */}
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -46,7 +50,7 @@ export default function Navbar() {
           <Link href="/cart" className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <ShoppingCart size={20} />
             {count > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
                 {count > 9 ? '9+' : count}
               </span>
             )}
@@ -60,14 +64,19 @@ export default function Navbar() {
                 <span className="text-sm hidden sm:block">{user.firstName}</span>
               </button>
               <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-900 border rounded-xl shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity">
-                <Link href="/account" className="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800">{t('account')}</Link>
+                {user.role === 'ADMIN' && (
+                  <Link href="/admin" className="block px-4 py-2 text-sm font-medium text-amber-600 hover:bg-gray-50 dark:hover:bg-gray-800">{t('admin')}</Link>
+                )}
+                <Link href="/account/orders" className="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800">{t('account')}</Link>
                 <button onClick={logout} className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50 dark:hover:bg-gray-800">
                   {t('logout')}
                 </button>
               </div>
             </div>
           ) : (
-            <Link href="/auth/login" className="btn-primary text-sm">{t('login')}</Link>
+            <Link href="/auth/login" className="bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+              {t('login')}
+            </Link>
           )}
 
           {/* Mobile hamburger */}
@@ -82,8 +91,11 @@ export default function Navbar() {
         <div className="md:hidden border-t px-4 py-3 flex flex-col gap-3 bg-white dark:bg-gray-900">
           <Link href="/" onClick={() => setMobileOpen(false)} className="text-sm font-medium">{t('home')}</Link>
           <Link href="/products" onClick={() => setMobileOpen(false)} className="text-sm font-medium">{t('products')}</Link>
+          <Link href="/products?category=niche" onClick={() => setMobileOpen(false)} className="text-sm font-medium">Niche</Link>
+          <Link href="/products?category=designer" onClick={() => setMobileOpen(false)} className="text-sm font-medium">Designer</Link>
+          <Link href="/products?category=arabic" onClick={() => setMobileOpen(false)} className="text-sm font-medium">Arabic</Link>
           {user?.role === 'ADMIN' && (
-            <Link href="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-primary-600">{t('admin')}</Link>
+            <Link href="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-amber-600">{t('admin')}</Link>
           )}
         </div>
       )}

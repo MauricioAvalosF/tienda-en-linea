@@ -161,6 +161,100 @@ async function main() {
     });
   }
   console.log('✅ Perfume products created:', products.length);
+  // ─── CMS Site Settings ────────────────────────────────────────────────────
+  const siteSettings = [
+    { key: 'site_name', value: 'Scentify', type: 'text', label: 'Store Name', group: 'general' },
+    { key: 'site_tagline', value: 'Discover Your Signature Scent', type: 'text', label: 'Tagline', group: 'general' },
+    { key: 'site_logo_url', value: '', type: 'image', label: 'Logo URL', group: 'general' },
+    { key: 'contact_email', value: 'contact@scentify.com', type: 'text', label: 'Contact Email', group: 'contact' },
+    { key: 'contact_phone', value: '', type: 'text', label: 'Phone', group: 'contact' },
+    { key: 'contact_address', value: '', type: 'text', label: 'Address', group: 'contact' },
+    { key: 'social_instagram', value: 'https://instagram.com/scentify', type: 'url', label: 'Instagram', group: 'social' },
+    { key: 'social_facebook', value: '', type: 'url', label: 'Facebook', group: 'social' },
+    { key: 'social_tiktok', value: '', type: 'url', label: 'TikTok', group: 'social' },
+    { key: 'social_whatsapp', value: '', type: 'url', label: 'WhatsApp', group: 'social' },
+    { key: 'seo_title', value: 'Scentify — Premium Fragrances', type: 'text', label: 'SEO Title', group: 'seo' },
+    { key: 'seo_description', value: 'Discover exclusive niche, designer and Arabic fragrances at Scentify.', type: 'text', label: 'SEO Description', group: 'seo' },
+  ];
+
+  for (const s of siteSettings) {
+    await prisma.siteSetting.upsert({ where: { key: s.key }, update: {}, create: s });
+  }
+  console.log('✅ Site settings created:', siteSettings.length);
+
+  // ─── CMS Sections ─────────────────────────────────────────────────────────
+  const cmsSections = [
+    {
+      key: 'hero',
+      label: 'Hero Banner',
+      type: 'hero',
+      order: 1,
+      badge: 'Premium Fragrances',
+      badgeEs: 'Fragancias Premium',
+      heading: 'Discover Your Signature Scent',
+      headingEs: 'Descubre Tu Fragancia Signature',
+      subheading: 'Explore an exclusive collection of niche, designer, and Arabic fragrances from the world\'s finest houses.',
+      subheadingEs: 'Explora una colección exclusiva de fragancias nicho, diseñador y árabes de las mejores casas del mundo.',
+      imageUrl: '',
+      ctaText: 'Shop Now',
+      ctaTextEs: 'Comprar Ahora',
+      ctaUrl: '/products',
+      ctaText2: 'Explore Niche',
+      ctaText2Es: 'Explorar Nicho',
+      ctaUrl2: '/products?category=niche',
+    },
+    {
+      key: 'announcement',
+      label: 'Announcement Bar',
+      type: 'announcement',
+      order: 0,
+      isActive: false,
+      heading: '🚚 Free shipping on orders over $100',
+      headingEs: '🚚 Envío gratis en pedidos mayores a $100',
+      ctaText: 'Shop Now',
+      ctaTextEs: 'Comprar',
+      ctaUrl: '/products',
+    },
+    {
+      key: 'featured_header',
+      label: 'Featured Section Title',
+      type: 'text',
+      order: 2,
+      heading: 'Featured Fragrances',
+      headingEs: 'Fragancias Destacadas',
+    },
+    {
+      key: 'promo_banner',
+      label: 'Promo Banner',
+      type: 'banner',
+      order: 3,
+      isActive: false,
+      heading: 'New Arrivals — Spring Collection',
+      headingEs: 'Nuevas Llegadas — Colección Primavera',
+      subheading: 'Fresh floral and citrus fragrances just dropped.',
+      subheadingEs: 'Fragancias florales y cítricas recién llegadas.',
+      imageUrl: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=1200',
+      ctaText: 'Discover',
+      ctaTextEs: 'Descubrir',
+      ctaUrl: '/products',
+    },
+    {
+      key: 'newsletter',
+      label: 'Newsletter Section',
+      type: 'text',
+      order: 4,
+      heading: 'Stay in the Know',
+      headingEs: 'Mantente al Día',
+      subheading: 'Subscribe for exclusive drops, new arrivals and fragrance tips.',
+      subheadingEs: 'Suscríbete para recibir novedades exclusivas y consejos sobre fragancias.',
+    },
+  ];
+
+  for (const s of cmsSections) {
+    await prisma.cmsSection.upsert({ where: { key: s.key }, update: {}, create: s });
+  }
+  console.log('✅ CMS sections created:', cmsSections.length);
+
   console.log('🎉 Seed complete!');
 }
 
