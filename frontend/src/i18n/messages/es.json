@@ -1,7 +1,7 @@
 {
   "nav": {
     "home": "Inicio",
-    "products": "Productos",
+    "products": "Fragancias",
     "cart": "Carrito",
     "account": "Mi Cuenta",
     "login": "Iniciar Sesión",
@@ -10,24 +10,26 @@
   },
   "home": {
     "hero": {
-      "title": "Las Últimas Tendencias",
-      "subtitle": "Descubre productos increíbles a precios inmejorables",
-      "cta": "Comprar Ahora"
+      "badge": "Fragancias Premium",
+      "title": "Descubre Tu Fragancia Signature",
+      "subtitle": "Explora una colección exclusiva de fragancias nicho, diseñador y árabes de las mejores casas del mundo.",
+      "cta": "Comprar Ahora",
+      "ctaSecondary": "Explorar Nicho"
     },
-    "featured": "Productos Destacados",
-    "categories": "Comprar por Categoría",
+    "featured": "Fragancias Destacadas",
+    "categories": "Explorar Colecciones",
     "newsletter": {
-      "title": "Mantente Informado",
-      "subtitle": "Suscríbete para recibir ofertas exclusivas",
+      "title": "Mantente al Día",
+      "subtitle": "Suscríbete para recibir novedades exclusivas y consejos sobre fragancias",
       "placeholder": "Ingresa tu correo",
       "button": "Suscribirse"
     }
   },
   "products": {
-    "title": "Todos los Productos",
+    "title": "Todas las Fragancias",
     "sort": "Ordenar por",
     "filter": "Filtrar",
-    "noResults": "No se encontraron productos",
+    "noResults": "No se encontraron fragancias",
     "addToCart": "Agregar al Carrito",
     "outOfStock": "Sin Stock",
     "inStock": "En Stock",

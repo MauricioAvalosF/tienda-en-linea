@@ -1,7 +1,7 @@
 {
   "nav": {
     "home": "Home",
-    "products": "Products",
+    "products": "Fragrances",
     "cart": "Cart",
     "account": "Account",
     "login": "Log in",
@@ -10,24 +10,26 @@
   },
   "home": {
     "hero": {
-      "title": "Shop the Latest Trends",
-      "subtitle": "Discover amazing products at unbeatable prices",
-      "cta": "Shop Now"
+      "badge": "Premium Fragrances",
+      "title": "Discover Your Signature Scent",
+      "subtitle": "Explore an exclusive collection of niche, designer, and Arabic fragrances from the world's finest houses.",
+      "cta": "Shop Now",
+      "ctaSecondary": "Explore Niche"
     },
-    "featured": "Featured Products",
-    "categories": "Shop by Category",
+    "featured": "Featured Fragrances",
+    "categories": "Shop by Collection",
     "newsletter": {
-      "title": "Stay Updated",
-      "subtitle": "Subscribe to get exclusive deals and updates",
+      "title": "Stay in the Know",
+      "subtitle": "Subscribe for exclusive drops, new arrivals and fragrance tips",
       "placeholder": "Enter your email",
       "button": "Subscribe"
     }
   },
   "products": {
-    "title": "All Products",
+    "title": "All Fragrances",
     "sort": "Sort by",
     "filter": "Filter",
-    "noResults": "No products found",
+    "noResults": "No fragrances found",
     "addToCart": "Add to Cart",
     "outOfStock": "Out of Stock",
     "inStock": "In Stock",

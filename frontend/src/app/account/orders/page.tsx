@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
-import { useAuthStore } from '@/store/auth.store';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import ProtectedPage from '@/components/auth/ProtectedPage';
 
 interface Order {
   id: string;
@@ -24,16 +23,13 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELLED: 'bg-red-100 text-red-700',
 };
 
-export default function OrdersPage() {
-  const { user } = useAuthStore();
-  const router = useRouter();
+function OrdersContent() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) { router.push('/auth/login'); return; }
     api.get('/orders').then((r) => setOrders(r.data)).finally(() => setLoading(false));
-  }, [user, router]);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -41,7 +37,9 @@ export default function OrdersPage() {
       <main className="flex-1 max-w-4xl mx-auto px-4 py-10 w-full">
         <h1 className="text-2xl font-bold mb-6">My Orders</h1>
         {loading ? (
-          <div className="flex justify-center py-20"><div className="animate-spin w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full" /></div>
+          <div className="flex justify-center py-20">
+            <div className="animate-spin w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full" />
+          </div>
         ) : orders.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-gray-500 mb-4">No orders yet</p>
@@ -57,9 +55,7 @@ export default function OrdersPage() {
                     <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className={`badge ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-700'}`}>
-                      {order.status}
-                    </span>
+                    <span className={`badge ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-700'}`}>{order.status}</span>
                     <span className="font-bold">${Number(order.total).toFixed(2)}</span>
                   </div>
                 </div>
@@ -78,5 +74,13 @@ export default function OrdersPage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function OrdersPage() {
+  return (
+    <ProtectedPage>
+      <OrdersContent />
+    </ProtectedPage>
   );
 }
