@@ -1,0 +1,92 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "cart": "Cart",
+    "account": "Account",
+    "login": "Log in",
+    "logout": "Log out",
+    "admin": "Admin"
+  },
+  "home": {
+    "hero": {
+      "title": "Shop the Latest Trends",
+      "subtitle": "Discover amazing products at unbeatable prices",
+      "cta": "Shop Now"
+    },
+    "featured": "Featured Products",
+    "categories": "Shop by Category",
+    "newsletter": {
+      "title": "Stay Updated",
+      "subtitle": "Subscribe to get exclusive deals and updates",
+      "placeholder": "Enter your email",
+      "button": "Subscribe"
+    }
+  },
+  "products": {
+    "title": "All Products",
+    "sort": "Sort by",
+    "filter": "Filter",
+    "noResults": "No products found",
+    "addToCart": "Add to Cart",
+    "outOfStock": "Out of Stock",
+    "inStock": "In Stock",
+    "price": "Price",
+    "reviews": "Reviews"
+  },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue Shopping",
+    "checkout": "Checkout",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "total": "Total",
+    "remove": "Remove",
+    "quantity": "Qty"
+  },
+  "auth": {
+    "login": "Log In",
+    "register": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phone": "Phone",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "account": {
+    "title": "My Account",
+    "orders": "My Orders",
+    "profile": "Profile",
+    "addresses": "Addresses",
+    "security": "Security"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "orders": "Orders",
+    "users": "Users",
+    "categories": "Categories",
+    "stats": {
+      "revenue": "Total Revenue",
+      "orders": "Total Orders",
+      "customers": "Customers",
+      "products": "Products"
+    }
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Done!"
+  }
+}

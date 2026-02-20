@@ -1,0 +1,92 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "products": "Productos",
+    "cart": "Carrito",
+    "account": "Mi Cuenta",
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
+    "admin": "Admin"
+  },
+  "home": {
+    "hero": {
+      "title": "Las Últimas Tendencias",
+      "subtitle": "Descubre productos increíbles a precios inmejorables",
+      "cta": "Comprar Ahora"
+    },
+    "featured": "Productos Destacados",
+    "categories": "Comprar por Categoría",
+    "newsletter": {
+      "title": "Mantente Informado",
+      "subtitle": "Suscríbete para recibir ofertas exclusivas",
+      "placeholder": "Ingresa tu correo",
+      "button": "Suscribirse"
+    }
+  },
+  "products": {
+    "title": "Todos los Productos",
+    "sort": "Ordenar por",
+    "filter": "Filtrar",
+    "noResults": "No se encontraron productos",
+    "addToCart": "Agregar al Carrito",
+    "outOfStock": "Sin Stock",
+    "inStock": "En Stock",
+    "price": "Precio",
+    "reviews": "Reseñas"
+  },
+  "cart": {
+    "title": "Tu Carrito",
+    "empty": "Tu carrito está vacío",
+    "continueShopping": "Seguir Comprando",
+    "checkout": "Pagar",
+    "subtotal": "Subtotal",
+    "shipping": "Envío",
+    "tax": "Impuesto",
+    "total": "Total",
+    "remove": "Eliminar",
+    "quantity": "Cant"
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "register": "Crear Cuenta",
+    "email": "Correo",
+    "password": "Contraseña",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "phone": "Teléfono",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?"
+  },
+  "account": {
+    "title": "Mi Cuenta",
+    "orders": "Mis Pedidos",
+    "profile": "Perfil",
+    "addresses": "Direcciones",
+    "security": "Seguridad"
+  },
+  "admin": {
+    "dashboard": "Panel de Control",
+    "products": "Productos",
+    "orders": "Pedidos",
+    "users": "Usuarios",
+    "categories": "Categorías",
+    "stats": {
+      "revenue": "Ingresos Totales",
+      "orders": "Pedidos Totales",
+      "customers": "Clientes",
+      "products": "Productos"
+    }
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "search": "Buscar",
+    "loading": "Cargando...",
+    "error": "Algo salió mal",
+    "success": "¡Listo!"
+  }
+}
