@@ -40,10 +40,10 @@ router.post('/checkout', authenticate, async (req: AuthRequest, res: Response) =
       customer_email: req.user!.email,
     });
 
-    res.json({ sessionId: session.id, url: session.url });
+    return res.json({ sessionId: session.id, url: session.url });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Checkout error' });
+    return res.status(500).json({ error: 'Checkout error' });
   }
 });
 
@@ -59,7 +59,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
   }
 
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.CheckoutSession;
+    const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.metadata?.userId;
     const cartId = session.metadata?.cartId;
 
@@ -92,7 +92,6 @@ router.post('/webhook', async (req: Request, res: Response) => {
             },
           });
 
-          // Decrease stock
           await Promise.all(
             cart.items.map((item) =>
               prisma.product.update({
@@ -102,9 +101,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
             )
           );
 
-          // Clear cart
           await prisma.cartItem.deleteMany({ where: { cartId } });
-
           console.log(`Order ${order.id} created for user ${userId}`);
         }
       } catch (err) {
@@ -113,7 +110,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
     }
   }
 
-  res.json({ received: true });
+  return res.json({ received: true });
 });
 
 export default router;
