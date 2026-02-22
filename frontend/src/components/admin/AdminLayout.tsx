@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, ShoppingCart, Users, Tag, Home, Layers } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, Tag, Home, Layers, Users2, Percent } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const navItems = [
@@ -11,6 +11,8 @@ const navItems = [
   { href: '/admin/categories', label: 'Categories', icon: Tag },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
   { href: '/admin/users', label: 'Users', icon: Users },
+  { href: '/admin/groups', label: 'Member Groups', icon: Users2 },
+  { href: '/admin/discounts', label: 'Discounts', icon: Percent },
   { href: '/admin/cms', label: 'CMS Editor', icon: Layers },
 ];
 
@@ -24,7 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="p-5 border-b">
           <Link href="/admin" className="text-lg font-bold text-amber-600 tracking-wide">Scentify Admin</Link>
         </div>
-        <nav className="flex-1 p-3 space-y-0.5">
+        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
           {navItems.map((item) => {
             const active = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
             return (

@@ -177,6 +177,120 @@ router.patch('/orders/:id/status', async (req, res) => {
   }
 });
 
+// ─── MEMBER GROUPS ───────────────────────────────────────────────────────────
+
+router.get('/groups', async (_req, res) => {
+  try {
+    const groups = await prisma.memberGroup.findMany({
+      include: { _count: { select: { users: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+    res.json(groups);
+  } catch {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.post('/groups', async (req, res) => {
+  const { name, description, color } = req.body;
+  try {
+    const group = await prisma.memberGroup.create({ data: { name, description, color } });
+    res.status(201).json(group);
+  } catch (err: unknown) {
+    if ((err as { code?: string }).code === 'P2002') return res.status(409).json({ error: 'Group name already exists' });
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.patch('/groups/:id', async (req, res) => {
+  try {
+    const group = await prisma.memberGroup.update({ where: { id: req.params.id }, data: req.body });
+    res.json(group);
+  } catch {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.delete('/groups/:id', async (req, res) => {
+  try {
+    const userCount = await prisma.user.count({ where: { groupId: req.params.id } });
+    if (userCount > 0) return res.status(400).json({ error: 'Cannot delete group with assigned users' });
+    await prisma.memberGroup.delete({ where: { id: req.params.id } });
+    res.json({ message: 'Group deleted' });
+  } catch {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── DISCOUNTS CRUD ──────────────────────────────────────────────────────────
+
+router.get('/discounts', async (_req, res) => {
+  try {
+    const discounts = await prisma.discount.findMany({
+      include: { group: { select: { id: true, name: true, color: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(discounts);
+  } catch {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.post('/discounts', async (req, res) => {
+  const { name, code, type, value, minOrderAmount, maxUses, isActive, startsAt, expiresAt, groupId } = req.body;
+  try {
+    const discount = await prisma.discount.create({
+      data: {
+        name,
+        code: code || null,
+        type,
+        value: Number(value),
+        minOrderAmount: minOrderAmount ? Number(minOrderAmount) : null,
+        maxUses: maxUses ? Number(maxUses) : null,
+        isActive: isActive !== false,
+        startsAt: startsAt ? new Date(startsAt) : null,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+        groupId: groupId || null,
+      },
+      include: { group: { select: { id: true, name: true, color: true } } },
+    });
+    res.status(201).json(discount);
+  } catch (err: unknown) {
+    if ((err as { code?: string }).code === 'P2002') return res.status(409).json({ error: 'Coupon code already exists' });
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.patch('/discounts/:id', async (req, res) => {
+  try {
+    const data: Record<string, unknown> = { ...req.body };
+    if ('value' in data) data.value = Number(data.value);
+    if ('minOrderAmount' in data) data.minOrderAmount = data.minOrderAmount ? Number(data.minOrderAmount) : null;
+    if ('maxUses' in data) data.maxUses = data.maxUses ? Number(data.maxUses) : null;
+    if ('startsAt' in data) data.startsAt = data.startsAt ? new Date(data.startsAt as string) : null;
+    if ('expiresAt' in data) data.expiresAt = data.expiresAt ? new Date(data.expiresAt as string) : null;
+    if ('groupId' in data) data.groupId = data.groupId || null;
+    if ('code' in data) data.code = data.code || null;
+    const discount = await prisma.discount.update({
+      where: { id: req.params.id },
+      data,
+      include: { group: { select: { id: true, name: true, color: true } } },
+    });
+    res.json(discount);
+  } catch {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.delete('/discounts/:id', async (req, res) => {
+  try {
+    await prisma.discount.delete({ where: { id: req.params.id } });
+    res.json({ message: 'Discount deleted' });
+  } catch {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // ─── USERS ───────────────────────────────────────────────────────────────────
 
 router.get('/users', async (req, res) => {
@@ -192,7 +306,17 @@ router.get('/users', async (req, res) => {
     const [users, total] = await Promise.all([
       prisma.user.findMany({
         where,
-        select: { id: true, email: true, firstName: true, lastName: true, role: true, isActive: true, createdAt: true, _count: { select: { orders: true } } },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          isActive: true,
+          createdAt: true,
+          group: { select: { id: true, name: true, color: true } },
+          _count: { select: { orders: true } },
+        },
         skip,
         take: Number(limit),
         orderBy: { createdAt: 'desc' },
@@ -208,10 +332,20 @@ router.get('/users', async (req, res) => {
 router.patch('/users/:id', async (req: AuthRequest, res) => {
   if (req.params.id === req.user!.id) return res.status(400).json({ error: 'Cannot modify yourself' });
   try {
+    const data = { ...req.body };
+    if ('groupId' in data) data.groupId = data.groupId || null;
     const user = await prisma.user.update({
       where: { id: req.params.id },
-      data: req.body,
-      select: { id: true, email: true, firstName: true, lastName: true, role: true, isActive: true },
+      data,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        group: { select: { id: true, name: true, color: true } },
+      },
     });
     res.json(user);
   } catch {

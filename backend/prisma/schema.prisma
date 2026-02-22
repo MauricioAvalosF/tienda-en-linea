@@ -12,6 +12,12 @@ enum Role {
   ADMIN
 }
 
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+  FREE_SHIPPING
+}
+
 enum OrderStatus {
   PENDING
   PAID
@@ -20,6 +26,39 @@ enum OrderStatus {
   DELIVERED
   CANCELLED
   REFUNDED
+}
+
+model MemberGroup {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?
+  color       String?    @default("#6B7280")
+  users       User[]
+  discounts   Discount[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("member_groups")
+}
+
+model Discount {
+  id             String       @id @default(cuid())
+  name           String
+  code           String?      @unique
+  type           DiscountType
+  value          Float        @default(0)
+  minOrderAmount Float?
+  maxUses        Int?
+  usedCount      Int          @default(0)
+  isActive       Boolean      @default(true)
+  startsAt       DateTime?
+  expiresAt      DateTime?
+  groupId        String?
+  group          MemberGroup? @relation(fields: [groupId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("discounts")
 }
 
 model User {
@@ -31,9 +70,11 @@ model User {
   phone     String?
   role      Role     @default(CUSTOMER)
   isActive  Boolean  @default(true)
+  groupId   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  group     MemberGroup? @relation(fields: [groupId], references: [id])
   addresses Address[]
   orders    Order[]
   cart      Cart?
@@ -137,6 +178,8 @@ model Order {
   total           Decimal     @db.Decimal(10, 2)
   stripePaymentId String?
   stripeSessionId String?
+  discountCode    String?
+  discountAmount  Decimal?    @db.Decimal(10, 2)
   notes           String?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt

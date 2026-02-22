@@ -255,6 +255,28 @@ async function main() {
   }
   console.log('✅ CMS sections created:', cmsSections.length);
 
+  // Member groups
+  const groups = [
+    { name: 'Regular', description: 'Standard members', color: '#6B7280' },
+    { name: 'VIP', description: 'VIP members with exclusive perks', color: '#F59E0B' },
+    { name: 'Premium', description: 'Premium members with maximum benefits', color: '#8B5CF6' },
+  ];
+
+  for (const g of groups) {
+    await prisma.memberGroup.upsert({ where: { name: g.name }, update: {}, create: g });
+  }
+  console.log('✅ Member groups created:', groups.length);
+
+  // Assign existing users to Regular group by default
+  const regularGroup = await prisma.memberGroup.findUnique({ where: { name: 'Regular' } });
+  if (regularGroup) {
+    await prisma.user.updateMany({
+      where: { groupId: null },
+      data: { groupId: regularGroup.id },
+    });
+    console.log('✅ Existing users assigned to Regular group');
+  }
+
   console.log('🎉 Seed complete!');
 }
 

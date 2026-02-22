@@ -14,6 +14,7 @@ import orderRoutes from './routes/order.routes';
 import adminRoutes from './routes/admin.routes';
 import stripeRoutes from './routes/stripe.routes';
 import cmsRoutes from './routes/cms.routes';
+import discountRoutes from './routes/discount.routes';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -72,6 +73,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/cms', cmsRoutes);
+app.use('/api/discounts', discountRoutes);
 
 // 404
 app.use((_req, res) => {

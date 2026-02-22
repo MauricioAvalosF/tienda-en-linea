@@ -3,7 +3,8 @@
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
+import { useState } from 'react';
+import { Trash2, Minus, Plus, ShoppingBag, Tag, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useCartStore } from '@/store/cart.store';
 import { useAuthStore } from '@/store/auth.store';
@@ -12,11 +13,52 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 
+interface AppliedDiscount {
+  id: string;
+  name: string;
+  code: string | null;
+  type: string;
+  value: number;
+  savingsAmount: number;
+}
+
 export default function CartPage() {
   const t = useTranslations('cart');
   const { items, removeItem, updateItem, total } = useCartStore();
   const { user } = useAuthStore();
   const router = useRouter();
+
+  const [couponInput, setCouponInput] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [appliedDiscount, setAppliedDiscount] = useState<AppliedDiscount | null>(null);
+
+  const applyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    if (!user) {
+      toast.error('Please log in to apply a coupon');
+      return;
+    }
+    setCouponLoading(true);
+    try {
+      const { data } = await api.post('/discounts/validate', {
+        code: couponInput.trim().toUpperCase(),
+        cartTotal: total(),
+      });
+      setAppliedDiscount({ ...data.discount, savingsAmount: data.savingsAmount });
+      toast.success(`Coupon applied! You save $${data.savingsAmount.toFixed(2)}`);
+      setCouponInput('');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      toast.error(msg || 'Invalid coupon code');
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedDiscount(null);
+    toast.success('Coupon removed');
+  };
 
   const handleCheckout = async () => {
     if (!user) {
@@ -24,7 +66,9 @@ export default function CartPage() {
       return;
     }
     try {
-      const { data } = await api.post('/stripe/checkout');
+      const { data } = await api.post('/stripe/checkout', {
+        couponCode: appliedDiscount?.code ?? null,
+      });
       window.location.href = data.url;
     } catch {
       toast.error('Checkout failed');
@@ -46,9 +90,10 @@ export default function CartPage() {
   }
 
   const subtotal = total();
-  const shipping = subtotal > 50 ? 0 : 9.99;
+  const shipping = subtotal > 50 || appliedDiscount?.type === 'FREE_SHIPPING' ? 0 : 9.99;
   const tax = subtotal * 0.08;
-  const orderTotal = subtotal + shipping + tax;
+  const discountSavings = appliedDiscount?.type === 'FREE_SHIPPING' ? 0 : (appliedDiscount?.savingsAmount ?? 0);
+  const orderTotal = Math.max(0, subtotal + shipping + tax - discountSavings);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -106,11 +151,56 @@ export default function CartPage() {
           <div className="lg:w-80">
             <div className="card p-6 space-y-4 sticky top-20">
               <h2 className="font-bold text-lg">Order Summary</h2>
+
+              {/* Coupon Input */}
+              <div>
+                {appliedDiscount ? (
+                  <div className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2">
+                    <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                      <Tag size={14} />
+                      <span className="text-sm font-medium">{appliedDiscount.code ?? appliedDiscount.name}</span>
+                      {appliedDiscount.type !== 'FREE_SHIPPING' && (
+                        <span className="text-xs">−${appliedDiscount.savingsAmount.toFixed(2)}</span>
+                      )}
+                      {appliedDiscount.type === 'FREE_SHIPPING' && (
+                        <span className="text-xs">Free shipping</span>
+                      )}
+                    </div>
+                    <button onClick={removeCoupon} className="text-green-600 hover:text-green-800">
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                      onKeyDown={(e) => e.key === 'Enter' && applyCoupon()}
+                      placeholder="Coupon code"
+                      className="input flex-1 text-sm py-2"
+                    />
+                    <button
+                      onClick={applyCoupon}
+                      disabled={couponLoading || !couponInput.trim()}
+                      className="btn-secondary px-3 py-2 text-sm font-medium disabled:opacity-50"
+                    >
+                      {couponLoading ? '…' : 'Apply'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">{t('subtotal')}</span>
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
+                {discountSavings > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Discount</span>
+                    <span>−${discountSavings.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-gray-600">{t('shipping')}</span>
                   <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
@@ -124,9 +214,11 @@ export default function CartPage() {
                   <span>${orderTotal.toFixed(2)}</span>
                 </div>
               </div>
-              {shipping > 0 && (
+
+              {shipping > 0 && !appliedDiscount && (
                 <p className="text-xs text-gray-500">Free shipping on orders over $50</p>
               )}
+
               <button onClick={handleCheckout} className="btn-primary w-full py-3 text-base">
                 {t('checkout')}
               </button>
