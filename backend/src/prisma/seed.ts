@@ -37,7 +37,7 @@ async function main() {
         nameEs: 'Nicho',
         slug: 'niche',
         description: 'Exclusive fragrances from independent and artisan houses',
-        imageUrl: 'https://images.unsplash.com/photo-1594913397394-d5b8be12b3be?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400',
       },
     }),
     prisma.category.upsert({
@@ -48,7 +48,7 @@ async function main() {
         nameEs: 'Diseñador',
         slug: 'designer',
         description: 'Iconic fragrances from the world\'s leading fashion houses',
-        imageUrl: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400',
       },
     }),
     prisma.category.upsert({
@@ -59,7 +59,7 @@ async function main() {
         nameEs: 'Árabe',
         slug: 'arabic',
         description: 'Rich and opulent fragrances rooted in Middle Eastern tradition',
-        imageUrl: 'https://images.unsplash.com/photo-1600336153113-d66c1d4f7793?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400',
       },
     }),
   ]);
@@ -83,7 +83,7 @@ async function main() {
       description: 'A luxurious and sensual fragrance with rich dark accords and black orchids. Deep, mysterious and powerful.',
       descriptionEs: 'Una fragancia lujosa y sensual con ricos acordes oscuros y orquídeas negras. Profunda, misteriosa y poderosa.',
       price: 245.00, stock: 20, sku: 'NCH-002',
-      imageUrls: ['https://images.unsplash.com/photo-1541643600914-78b084683702?w=400'],
+      imageUrls: ['https://images.unsplash.com/photo-1563170351-be82bc888aa4?w=600'],
       categoryId: niche.id, isFeatured: true,
     },
     {
@@ -92,7 +92,7 @@ async function main() {
       description: 'A dazzling amber and floral fragrance that illuminates the skin. Jasmine, saffron, amberwood and fir resin.',
       descriptionEs: 'Una deslumbrante fragancia ambarina y floral que ilumina la piel. Jazmín, azafrán, madera de ámbar y resina de abeto.',
       price: 320.00, comparePrice: 350.00, stock: 12, sku: 'NCH-003',
-      imageUrls: ['https://images.unsplash.com/photo-1588776814546-1ffbb29c17d6?w=400'],
+      imageUrls: ['https://images.unsplash.com/photo-1617897903246-719242758050?w=600'],
       categoryId: niche.id, isFeatured: false,
     },
     // Designer
@@ -102,7 +102,7 @@ async function main() {
       description: 'Raw and noble, wild and yet refined. A fresh and raw woody aromatic fragrance with bergamot and ambroxan.',
       descriptionEs: 'Crudo y noble, salvaje pero refinado. Una fragancia aromática amaderada fresca y cruda con bergamota y ambroxan.',
       price: 145.00, comparePrice: 165.00, stock: 40, sku: 'DSG-001',
-      imageUrls: ['https://images.unsplash.com/photo-1594913397394-d5b8be12b3be?w=400'],
+      imageUrls: ['https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=600'],
       categoryId: designer.id, isFeatured: true,
     },
     {
@@ -111,7 +111,7 @@ async function main() {
       description: 'An ode to masculine freedom. An aromatic-woody fragrance that defies the conventional and celebrates sensuality.',
       descriptionEs: 'Una oda a la libertad masculina. Una fragancia aromática y amaderada que desafía lo convencional y celebra la sensualidad.',
       price: 155.00, stock: 35, sku: 'DSG-002',
-      imageUrls: ['https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400'],
+      imageUrls: ['https://images.unsplash.com/photo-1619994403073-2cec844b8e63?w=600'],
       categoryId: designer.id, isFeatured: false,
     },
     {
@@ -120,7 +120,7 @@ async function main() {
       description: 'A radiant fragrance and a declaration of happiness. Iris and patchouli layered with a praline and vanilla base.',
       descriptionEs: 'Una fragancia radiante y una declaración de felicidad. Iris y pachulí sobre una base de praliné y vainilla.',
       price: 135.00, stock: 30, sku: 'DSG-003',
-      imageUrls: ['https://images.unsplash.com/photo-1600336153113-d66c1d4f7793?w=400'],
+      imageUrls: ['https://images.unsplash.com/photo-1557825835-70d97c4aa567?w=600'],
       categoryId: designer.id, isFeatured: false,
     },
     // Arabic
@@ -130,7 +130,7 @@ async function main() {
       description: 'A rich, smoky oud fragrance with deep saffron and rose. An opulent night-time fragrance of depth and mystery.',
       descriptionEs: 'Una rica fragancia de oud ahumado con profundo azafrán y rosa. Una opulenta fragancia nocturna de profundidad y misterio.',
       price: 195.00, comparePrice: 220.00, stock: 18, sku: 'ARB-001',
-      imageUrls: ['https://images.unsplash.com/photo-1601295453926-62f21b49e6f2?w=400'],
+      imageUrls: ['https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600'],
       categoryId: arabic.id, isFeatured: true,
     },
     {
@@ -148,7 +148,7 @@ async function main() {
       description: 'An exquisite blend of Bulgarian rose and precious oud wood. Romantic, warm and deeply oriental.',
       descriptionEs: 'Una exquisita mezcla de rosa búlgara y preciosa madera de oud. Romántico, cálido y profundamente oriental.',
       price: 165.00, stock: 22, sku: 'ARB-003',
-      imageUrls: ['https://images.unsplash.com/photo-1541643600914-78b084683702?w=400'],
+      imageUrls: ['https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=600'],
       categoryId: arabic.id, isFeatured: false,
     },
   ];
