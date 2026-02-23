@@ -3,9 +3,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { ShoppingCart, User, Menu, X, Sun, Moon } from 'lucide-react';
+import { ShoppingCart, User, Menu, X, Sun, Moon, ChevronDown } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '@/store/auth.store';
 import { useCartStore } from '@/store/cart.store';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -16,6 +16,19 @@ export default function Navbar() {
   const count = useCartStore((s) => s.count());
   const { theme, setTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b shadow-sm">
@@ -43,7 +56,6 @@ export default function Navbar() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          {/* Language switcher */}
           <LanguageSwitcher />
 
           {/* Theme toggle */}
@@ -64,22 +76,45 @@ export default function Navbar() {
             )}
           </Link>
 
-          {/* User */}
+          {/* User menu — click-based, no gap flicker */}
           {user ? (
-            <div className="relative group">
-              <button className="flex items-center gap-1.5 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                <User size={20} />
-                <span className="text-sm hidden sm:block">{user.firstName}</span>
+            <div className="relative" ref={userMenuRef}>
+              <button
+                onClick={() => setUserMenuOpen((v) => !v)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <User size={18} />
+                <span className="text-sm hidden sm:block font-medium">{user.firstName}</span>
+                <ChevronDown size={14} className={`transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
               </button>
-              <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-900 border rounded-xl shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity">
-                {user.role === 'ADMIN' && (
-                  <Link href="/admin" className="block px-4 py-2 text-sm font-medium text-amber-600 hover:bg-gray-50 dark:hover:bg-gray-800">{t('admin')}</Link>
-                )}
-                <Link href="/account/orders" className="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800">{t('account')}</Link>
-                <button onClick={logout} className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50 dark:hover:bg-gray-800">
-                  {t('logout')}
-                </button>
-              </div>
+
+              {userMenuOpen && (
+                <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-xl shadow-lg py-1 z-50">
+                  {user.role === 'ADMIN' && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="block px-4 py-2 text-sm font-medium text-amber-600 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                      {t('admin')}
+                    </Link>
+                  )}
+                  <Link
+                    href="/account/orders"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    {t('account')}
+                  </Link>
+                  <div className="border-t dark:border-gray-700 my-1" />
+                  <button
+                    onClick={() => { logout(); setUserMenuOpen(false); }}
+                    className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    {t('logout')}
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <Link href="/auth/login" className="bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">

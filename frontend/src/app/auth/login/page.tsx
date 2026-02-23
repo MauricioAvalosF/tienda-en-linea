@@ -25,11 +25,9 @@ export default function LoginPage() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await login(data.email, data.password);
+      const user = await login(data.email, data.password);
       toast.success('Welcome back!');
-      // Redirect admin to dashboard, customers to home
-      const user = useAuthStore.getState().user;
-      router.push(user?.role === 'ADMIN' ? '/admin' : '/');
+      router.replace(user.role === 'ADMIN' ? '/admin' : '/');
     } catch {
       toast.error('Invalid credentials');
     }
