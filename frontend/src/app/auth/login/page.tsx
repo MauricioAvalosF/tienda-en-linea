@@ -40,7 +40,7 @@ export default function LoginPage() {
       <div className="card p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold">{t('login')}</h1>
-          <p className="text-gray-500 text-sm mt-1">Welcome back to Scentify</p>
+          <p className="text-gray-500 text-sm mt-1">Welcome back to Maison de Parfum</p>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>

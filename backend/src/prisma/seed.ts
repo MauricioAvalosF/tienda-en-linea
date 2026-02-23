@@ -163,18 +163,18 @@ async function main() {
   console.log('✅ Perfume products created:', products.length);
   // ─── CMS Site Settings ────────────────────────────────────────────────────
   const siteSettings = [
-    { key: 'site_name', value: 'Scentify', type: 'text', label: 'Store Name', group: 'general' },
+    { key: 'site_name', value: 'Maison de Parfum', type: 'text', label: 'Store Name', group: 'general' },
     { key: 'site_tagline', value: 'Discover Your Signature Scent', type: 'text', label: 'Tagline', group: 'general' },
-    { key: 'site_logo_url', value: '', type: 'image', label: 'Logo URL', group: 'general' },
-    { key: 'contact_email', value: 'contact@scentify.com', type: 'text', label: 'Contact Email', group: 'contact' },
+    { key: 'site_logo_url', value: '/logo.jpg', type: 'image', label: 'Logo URL', group: 'general' },
+    { key: 'contact_email', value: 'contact@maisonparfum.com', type: 'text', label: 'Contact Email', group: 'contact' },
     { key: 'contact_phone', value: '', type: 'text', label: 'Phone', group: 'contact' },
     { key: 'contact_address', value: '', type: 'text', label: 'Address', group: 'contact' },
-    { key: 'social_instagram', value: 'https://instagram.com/scentify', type: 'url', label: 'Instagram', group: 'social' },
+    { key: 'social_instagram', value: '', type: 'url', label: 'Instagram', group: 'social' },
     { key: 'social_facebook', value: '', type: 'url', label: 'Facebook', group: 'social' },
     { key: 'social_tiktok', value: '', type: 'url', label: 'TikTok', group: 'social' },
     { key: 'social_whatsapp', value: '', type: 'url', label: 'WhatsApp', group: 'social' },
-    { key: 'seo_title', value: 'Scentify — Premium Fragrances', type: 'text', label: 'SEO Title', group: 'seo' },
-    { key: 'seo_description', value: 'Discover exclusive niche, designer and Arabic fragrances at Scentify.', type: 'text', label: 'SEO Description', group: 'seo' },
+    { key: 'seo_title', value: 'Maison de Parfum — Premium Fragrances', type: 'text', label: 'SEO Title', group: 'seo' },
+    { key: 'seo_description', value: 'Discover exclusive niche, designer and Arabic fragrances at Maison de Parfum.', type: 'text', label: 'SEO Description', group: 'seo' },
   ];
 
   for (const s of siteSettings) {
