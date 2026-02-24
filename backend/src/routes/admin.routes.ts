@@ -24,7 +24,7 @@ router.get('/stats', async (_req, res) => {
 
     const recentOrders = await prisma.order.findMany({
       where: { createdAt: { gte: sixMonthsAgo } },
-      select: { createdAt: true, total: true, status: true },
+      select: { id: true, createdAt: true, total: true, status: true },
       orderBy: { createdAt: 'desc' },
     });
 
