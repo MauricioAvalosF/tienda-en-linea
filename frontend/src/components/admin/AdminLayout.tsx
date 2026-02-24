@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Package, ShoppingCart, Users, Tag, Home, Layers, Users2, Percent } from 'lucide-react';
 import { clsx } from 'clsx';
+import NotificationBell from './NotificationBell';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -19,6 +20,11 @@ const navItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
+  // Derive page title from current path
+  const currentNav = navItems.find((item) =>
+    item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href)
+  );
 
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-gray-950">
@@ -62,10 +68,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      {/* Content */}
-      <main className="flex-1 p-8 overflow-auto">
-        {children}
-      </main>
+      {/* Right side: header + content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top header */}
+        <header className="h-14 bg-white dark:bg-gray-900 border-b flex items-center justify-between px-6 shrink-0">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            {currentNav?.label ?? 'Admin'}
+          </p>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 p-8 overflow-auto">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

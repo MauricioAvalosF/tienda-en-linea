@@ -50,6 +50,33 @@ router.get('/stats', async (_req, res) => {
   }
 });
 
+// ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
+
+// GET /api/admin/notifications?since=<ISO timestamp>
+router.get('/notifications', async (req, res) => {
+  try {
+    const since = req.query.since ? new Date(req.query.since as string) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const [recent, unreadCount] = await Promise.all([
+      prisma.order.findMany({
+        where: { createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
+        select: {
+          id: true,
+          status: true,
+          total: true,
+          createdAt: true,
+          user: { select: { firstName: true, lastName: true, email: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+      }),
+      prisma.order.count({ where: { createdAt: { gte: since } } }),
+    ]);
+    res.json({ orders: recent, unreadCount });
+  } catch {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // ─── PRODUCTS CRUD ───────────────────────────────────────────────────────────
 
 router.get('/products', async (req, res) => {
