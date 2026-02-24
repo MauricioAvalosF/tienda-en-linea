@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Package, ShoppingCart, Users, Tag, Home, Layers, Users2, Percent } from 'lucide-react';
 import { clsx } from 'clsx';
-import NotificationBell from './NotificationBell';
+import dynamic from 'next/dynamic';
+const NotificationBell = dynamic(() => import('./NotificationBell'), { ssr: false });
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
