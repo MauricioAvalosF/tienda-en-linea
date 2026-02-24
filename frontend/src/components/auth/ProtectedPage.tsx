@@ -25,13 +25,13 @@ export default function ProtectedPage({ children, requireAdmin = false }: Props)
       router.push('/auth/login');
       return;
     }
-    if (requireAdmin && user.role !== 'ADMIN') {
+    if (requireAdmin && user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') {
       router.push('/');
     }
   }, [mounted, user, router, requireAdmin]);
 
   // Show spinner while hydrating or redirecting
-  if (!mounted || !user || (requireAdmin && user.role !== 'ADMIN')) {
+  if (!mounted || !user || (requireAdmin && user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN')) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="animate-spin w-10 h-10 border-4 border-primary-600 border-t-transparent rounded-full" />

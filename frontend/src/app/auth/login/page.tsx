@@ -27,7 +27,7 @@ export default function LoginPage() {
     try {
       const user = await login(data.email, data.password);
       toast.success('Welcome back!');
-      router.replace(user.role === 'ADMIN' ? '/admin' : '/');
+      router.replace(user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? '/admin' : '/');
     } catch {
       toast.error('Invalid credentials');
     }

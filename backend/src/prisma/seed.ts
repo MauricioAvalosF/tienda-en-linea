@@ -10,16 +10,31 @@ async function main() {
   const adminPassword = await bcrypt.hash('admin123', 12);
   const admin = await prisma.user.upsert({
     where: { email: 'admin@tienda.com' },
-    update: {},
+    update: { role: 'SUPER_ADMIN' },
     create: {
       email: 'admin@tienda.com',
       password: adminPassword,
       firstName: 'Admin',
       lastName: 'Store',
-      role: 'ADMIN',
+      role: 'SUPER_ADMIN',
     },
   });
   console.log('✅ Admin created:', admin.email);
+
+  // Test client user
+  const clientPassword = await bcrypt.hash('cliente123', 12);
+  await prisma.user.upsert({
+    where: { email: 'cliente@test.com' },
+    update: {},
+    create: {
+      email: 'cliente@test.com',
+      password: clientPassword,
+      firstName: 'Cliente',
+      lastName: 'Test',
+      role: 'CUSTOMER',
+    },
+  });
+  console.log('✅ Test client created: cliente@test.com');
 
   // Deactivate old categories that don't belong to perfumes
   await prisma.category.updateMany({

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Package, ShoppingCart, Users, Tag, Home, Layers, Users2, Percent } from 'lucide-react';
 import { clsx } from 'clsx';
 import dynamic from 'next/dynamic';
+import { useAuthStore } from '@/store/auth.store';
 const NotificationBell = dynamic(() => import('./NotificationBell'), { ssr: false });
 
 const navItems = [
@@ -21,6 +22,7 @@ const navItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useAuthStore();
 
   // Derive page title from current path
   const currentNav = navItems.find((item) =>
@@ -76,7 +78,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
             {currentNav?.label ?? 'Admin'}
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
+            {user && (
+              <div className="flex items-center gap-3">
+                <div className="text-right hidden sm:block">
+                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 leading-none">
+                    {user.firstName} {user.lastName}
+                  </p>
+                  <p className="text-xs mt-0.5 font-medium text-amber-600 dark:text-amber-400">
+                    {user.role === 'SUPER_ADMIN' ? 'Super Admin' : 'Admin'}
+                  </p>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-700 dark:text-amber-400 font-bold text-sm shrink-0">
+                  {user.firstName?.[0]}{user.lastName?.[0]}
+                </div>
+              </div>
+            )}
             <NotificationBell />
           </div>
         </header>

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../lib/prisma';
-import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.middleware';
+import { authenticate, requireAdmin, requireSuperAdmin, AuthRequest } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -194,6 +194,27 @@ router.get('/orders', async (req, res) => {
   }
 });
 
+router.get('/orders/:id', async (req, res) => {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: req.params.id },
+      include: {
+        user: { select: { firstName: true, lastName: true, email: true } },
+        items: {
+          include: {
+            product: { select: { name: true, nameEs: true, imageUrls: true, price: true, slug: true } },
+          },
+        },
+        address: true,
+      },
+    });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json(order);
+  } catch {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 router.patch('/orders/:id/status', async (req, res) => {
   const { status } = req.body;
   try {
@@ -360,6 +381,9 @@ router.patch('/users/:id', async (req: AuthRequest, res) => {
   if (req.params.id === req.user!.id) return res.status(400).json({ error: 'Cannot modify yourself' });
   try {
     const data = { ...req.body };
+    if ('role' in data && req.user?.role !== 'SUPER_ADMIN') {
+      return res.status(403).json({ error: 'Only super admins can change user roles' });
+    }
     if ('groupId' in data) data.groupId = data.groupId || null;
     const user = await prisma.user.update({
       where: { id: req.params.id },

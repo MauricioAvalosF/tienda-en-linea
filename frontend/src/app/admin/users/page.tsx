@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ProtectedPage from '@/components/auth/ProtectedPage';
+import { useAuthStore } from '@/store/auth.store';
 import toast from 'react-hot-toast';
 
 interface Group {
@@ -29,6 +30,8 @@ function UsersContent() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const { user: currentUser } = useAuthStore();
+  const isSuperAdmin = currentUser?.role === 'SUPER_ADMIN';
 
   const fetchData = (q = '') => {
     setLoading(true);
@@ -119,8 +122,12 @@ function UsersContent() {
                   </td>
                   <td className="px-4 py-3 text-gray-500">{u.email}</td>
                   <td className="px-4 py-3">
-                    <span className={`badge ${u.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'}`}>
-                      {u.role}
+                    <span className={`badge ${
+                      u.role === 'SUPER_ADMIN' ? 'bg-amber-100 text-amber-700' :
+                      u.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' :
+                      'bg-gray-100 text-gray-600'
+                    }`}>
+                      {u.role === 'SUPER_ADMIN' ? 'Super Admin' : u.role}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -157,12 +164,14 @@ function UsersContent() {
                       >
                         {u.isActive ? 'Deactivate' : 'Activate'}
                       </button>
-                      <button
-                        onClick={() => toggleAdmin(u)}
-                        className="text-xs px-2 py-1 rounded-lg border border-purple-200 text-purple-600 hover:bg-purple-50 font-medium transition-colors"
-                      >
-                        {u.role === 'ADMIN' ? '→ Customer' : '→ Admin'}
-                      </button>
+                      {isSuperAdmin && u.role !== 'SUPER_ADMIN' && (
+                        <button
+                          onClick={() => toggleAdmin(u)}
+                          className="text-xs px-2 py-1 rounded-lg border border-purple-200 text-purple-600 hover:bg-purple-50 font-medium transition-colors"
+                        >
+                          {u.role === 'ADMIN' ? '→ Customer' : '→ Admin'}
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -41,8 +41,15 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
 };
 
 export const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
-  if (req.user?.role !== 'ADMIN') {
+  if (req.user?.role !== 'ADMIN' && req.user?.role !== 'SUPER_ADMIN') {
     return res.status(403).json({ error: 'Admin access required' });
+  }
+  next();
+};
+
+export const requireSuperAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
+  if (req.user?.role !== 'SUPER_ADMIN') {
+    return res.status(403).json({ error: 'Super admin access required' });
   }
   next();
 };
