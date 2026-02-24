@@ -223,4 +223,65 @@ router.post('/webhook', async (req: Request, res: Response) => {
   return res.json({ received: true });
 });
 
+// POST /api/stripe/test-checkout — create order directly, no Stripe (dev/test only)
+router.post('/test-checkout', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const cart = await prisma.cart.findUnique({
+      where: { userId: req.user!.id },
+      include: { items: { include: { product: true } } },
+    });
+
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ error: 'Cart is empty' });
+    }
+
+    const subtotal = cart.items.reduce(
+      (sum, item) => sum + Number(item.product.price) * item.quantity,
+      0
+    );
+    const shipping = subtotal > 50 ? 0 : 9.99;
+    const tax = subtotal * 0.08;
+    const total = subtotal + shipping + tax;
+
+    const order = await prisma.order.create({
+      data: {
+        userId: req.user!.id,
+        subtotal,
+        shippingCost: shipping,
+        tax,
+        total,
+        status: 'PAID',
+        stripeSessionId: `test_${Date.now()}`,
+        items: {
+          create: cart.items.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            unitPrice: item.product.price,
+            total: Number(item.product.price) * item.quantity,
+          })),
+        },
+      },
+    });
+
+    // Decrement stock
+    await Promise.all(
+      cart.items.map((item) =>
+        prisma.product.update({
+          where: { id: item.productId },
+          data: { stock: { decrement: item.quantity } },
+        })
+      )
+    );
+
+    // Clear cart
+    await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
+
+    console.log(`[TEST] Order ${order.id} created for user ${req.user!.id}`);
+    return res.json({ orderId: order.id, redirectUrl: '/checkout/success' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Test checkout error' });
+  }
+});
+
 export default router;

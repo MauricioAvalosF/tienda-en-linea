@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
-import { Trash2, Minus, Plus, ShoppingBag, Tag, X } from 'lucide-react';
+import { Trash2, Minus, Plus, ShoppingBag, Tag, X, FlaskConical } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useCartStore } from '@/store/cart.store';
 import { useAuthStore } from '@/store/auth.store';
@@ -31,6 +31,7 @@ export default function CartPage() {
   const [couponInput, setCouponInput] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
   const [appliedDiscount, setAppliedDiscount] = useState<AppliedDiscount | null>(null);
+  const [testLoading, setTestLoading] = useState(false);
 
   const applyCoupon = async () => {
     if (!couponInput.trim()) return;
@@ -72,6 +73,22 @@ export default function CartPage() {
       window.location.href = data.url;
     } catch {
       toast.error('Checkout failed');
+    }
+  };
+
+  const handleTestCheckout = async () => {
+    if (!user) {
+      router.push('/auth/login');
+      return;
+    }
+    setTestLoading(true);
+    try {
+      await api.post('/stripe/test-checkout');
+      router.push('/checkout/success');
+    } catch {
+      toast.error('Test checkout failed');
+    } finally {
+      setTestLoading(false);
     }
   };
 
@@ -222,6 +239,22 @@ export default function CartPage() {
               <button onClick={handleCheckout} className="btn-primary w-full py-3 text-base">
                 {t('checkout')}
               </button>
+
+              {/* Test checkout — bypass Stripe for testing */}
+              <div className="border-t pt-3">
+                <p className="text-[11px] text-gray-400 text-center mb-2 flex items-center justify-center gap-1">
+                  <FlaskConical size={11} /> Test mode — no payment required
+                </p>
+                <button
+                  onClick={handleTestCheckout}
+                  disabled={testLoading}
+                  className="w-full py-2.5 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:border-amber-400 hover:text-amber-600 dark:hover:border-amber-500 dark:hover:text-amber-400 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  <FlaskConical size={15} />
+                  {testLoading ? 'Processing…' : 'Place Test Order'}
+                </button>
+              </div>
+
               <Link href="/products" className="btn-secondary w-full py-2 text-center block text-sm">
                 {t('continueShopping')}
               </Link>
