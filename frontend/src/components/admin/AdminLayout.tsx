@@ -7,28 +7,30 @@ import { LayoutDashboard, Package, ShoppingCart, Users, Tag, Layers, Users2, Per
 import { clsx } from 'clsx';
 import dynamic from 'next/dynamic';
 import { useTheme } from 'next-themes';
+import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/store/auth.store';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
 const NotificationBell = dynamic(() => import('./NotificationBell'), { ssr: false });
 
-const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/products', label: 'Products', icon: Package },
-  { href: '/admin/categories', label: 'Categories', icon: Tag },
-  { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
-  { href: '/admin/users', label: 'Users', icon: Users },
-  { href: '/admin/groups', label: 'Member Groups', icon: Users2 },
-  { href: '/admin/discounts', label: 'Discounts', icon: Percent },
-  { href: '/admin/cms', label: 'CMS Editor', icon: Layers },
-];
+const NAV_ITEMS = [
+  { href: '/admin', key: 'dashboard', icon: LayoutDashboard },
+  { href: '/admin/products', key: 'products', icon: Package },
+  { href: '/admin/categories', key: 'categories', icon: Tag },
+  { href: '/admin/orders', key: 'orders', icon: ShoppingCart },
+  { href: '/admin/users', key: 'users', icon: Users },
+  { href: '/admin/groups', key: 'groups', icon: Users2 },
+  { href: '/admin/discounts', key: 'discounts', icon: Percent },
+  { href: '/admin/cms', key: 'cms', icon: Layers },
+] as const;
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const { theme, setTheme } = useTheme();
+  const t = useTranslations('admin');
 
-  const currentNav = navItems.find((item) =>
+  const currentNav = NAV_ITEMS.find((item) =>
     item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href)
   );
 
@@ -55,7 +57,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
         </div>
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-          {navItems.map((item) => {
+          {NAV_ITEMS.map((item) => {
             const active = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
             return (
               <Link
@@ -69,7 +71,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 )}
               >
                 <item.icon size={17} />
-                {item.label}
+                {t(item.key)}
               </Link>
             );
           })}
@@ -79,7 +81,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             onClick={handleLogout}
             className="flex items-center gap-2 text-sm text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors w-full"
           >
-            <LogOut size={15} /> Sign Out
+            <LogOut size={15} /> {t('signOut')}
           </button>
         </div>
       </aside>
@@ -91,7 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-2.5">
             {PageIcon && <PageIcon size={18} className="text-amber-600 dark:text-amber-400" />}
             <h1 className="text-base font-bold text-gray-800 dark:text-gray-200 tracking-tight">
-              {currentNav?.label ?? 'Admin Panel'}
+              {currentNav ? t(currentNav.key) : 'Admin Panel'}
             </h1>
           </div>
           <div className="flex items-center gap-2">

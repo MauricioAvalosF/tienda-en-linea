@@ -66,7 +66,7 @@ function DashboardContent() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="card p-6">
-          <h2 className="font-semibold text-lg mb-4">Recent Orders</h2>
+          <h2 className="font-semibold text-lg mb-4">{t('recentOrders')}</h2>
           <div className="space-y-3">
             {stats?.recentOrders.map((order) => (
               <div key={order.id} className="flex items-center justify-between py-2 border-b last:border-0">
@@ -80,13 +80,13 @@ function DashboardContent() {
                 </div>
               </div>
             ))}
-            {!stats?.recentOrders.length && <p className="text-gray-500 text-sm">No orders yet</p>}
+            {!stats?.recentOrders.length && <p className="text-gray-500 text-sm">{t('noRecentOrders')}</p>}
           </div>
         </div>
 
         <div className="card p-6">
           <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
-            <TrendingDown size={18} className="text-red-500" /> Low Stock Alert
+            <TrendingDown size={18} className="text-red-500" /> {t('lowStock')}
           </h2>
           <div className="space-y-3">
             {stats?.lowStock.map((product) => (
@@ -98,11 +98,11 @@ function DashboardContent() {
                   <p className="text-sm font-medium truncate">{product.name}</p>
                 </div>
                 <span className={`badge ${product.stock === 0 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                  {product.stock} left
+                  {product.stock} {t('left')}
                 </span>
               </div>
             ))}
-            {!stats?.lowStock.length && <p className="text-gray-500 text-sm">All products have sufficient stock</p>}
+            {!stats?.lowStock.length && <p className="text-gray-500 text-sm">{t('allGoodStock')}</p>}
           </div>
         </div>
       </div>

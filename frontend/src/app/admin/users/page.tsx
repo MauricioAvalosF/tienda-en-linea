@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ProtectedPage from '@/components/auth/ProtectedPage';
@@ -26,6 +27,7 @@ interface User {
 }
 
 function UsersContent() {
+  const t = useTranslations('admin');
   const [users, setUsers] = useState<User[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,10 +52,10 @@ function UsersContent() {
   const toggleActive = async (u: User) => {
     try {
       await api.patch(`/admin/users/${u.id}`, { isActive: !u.isActive });
-      toast.success(u.isActive ? 'User deactivated' : 'User activated');
+      toast.success(u.isActive ? t('user.deactivated') : t('user.activated'));
       fetchData(search);
     } catch {
-      toast.error('Error updating user');
+      toast.error('Error');
     }
   };
 
@@ -61,27 +63,27 @@ function UsersContent() {
     const newRole = u.role === 'ADMIN' ? 'CUSTOMER' : 'ADMIN';
     try {
       await api.patch(`/admin/users/${u.id}`, { role: newRole });
-      toast.success(`Role changed to ${newRole}`);
+      toast.success(`→ ${newRole}`);
       fetchData(search);
     } catch {
-      toast.error('Error updating role');
+      toast.error('Error');
     }
   };
 
   const changeGroup = async (u: User, groupId: string) => {
     try {
       await api.patch(`/admin/users/${u.id}`, { groupId: groupId || null });
-      toast.success('Group updated');
+      toast.success(t('user.groupUpdated'));
       fetchData(search);
     } catch {
-      toast.error('Error updating group');
+      toast.error('Error');
     }
   };
 
   return (
     <>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Users</h1>
+        <h1 className="text-2xl font-bold">{t('user.title')}</h1>
         <form
           onSubmit={(e) => { e.preventDefault(); setLoading(true); fetchData(search); }}
           className="flex gap-2"
@@ -89,10 +91,10 @@ function UsersContent() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name or email"
+            placeholder={t('user.searchPlaceholder')}
             className="input w-64"
           />
-          <button type="submit" className="btn-primary px-4">Search</button>
+          <button type="submit" className="btn-primary px-4">{t('user.search')}</button>
         </form>
       </div>
 
@@ -105,13 +107,13 @@ function UsersContent() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="text-left px-4 py-3">User</th>
-                <th className="text-left px-4 py-3">Email</th>
-                <th className="text-left px-4 py-3">Role</th>
-                <th className="text-left px-4 py-3">Group</th>
-                <th className="text-left px-4 py-3">Orders</th>
-                <th className="text-left px-4 py-3">Joined</th>
-                <th className="text-left px-4 py-3">Actions</th>
+                <th className="text-left px-4 py-3">{t('user.col.user')}</th>
+                <th className="text-left px-4 py-3">{t('user.col.email')}</th>
+                <th className="text-left px-4 py-3">{t('user.col.role')}</th>
+                <th className="text-left px-4 py-3">{t('user.col.group')}</th>
+                <th className="text-left px-4 py-3">{t('user.col.orders')}</th>
+                <th className="text-left px-4 py-3">{t('user.col.joined')}</th>
+                <th className="text-left px-4 py-3">{t('user.col.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y dark:divide-gray-800">
@@ -136,7 +138,7 @@ function UsersContent() {
                       onChange={(e) => changeGroup(u, e.target.value)}
                       className="text-xs border rounded-lg px-2 py-1 bg-white dark:bg-gray-800 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-amber-500"
                     >
-                      <option value="">No group</option>
+                      <option value="">{t('user.noGroup')}</option>
                       {groups.map((g) => (
                         <option key={g.id} value={g.id}>{g.name}</option>
                       ))}
@@ -162,7 +164,7 @@ function UsersContent() {
                             : 'border-green-200 text-green-600 hover:bg-green-50'
                         }`}
                       >
-                        {u.isActive ? 'Deactivate' : 'Activate'}
+                        {u.isActive ? t('user.deactivate') : t('user.activate')}
                       </button>
                       {isSuperAdmin && u.role !== 'SUPER_ADMIN' && (
                         <button
@@ -177,7 +179,7 @@ function UsersContent() {
                 </tr>
               ))}
               {!users.length && (
-                <tr><td colSpan={7} className="text-center py-10 text-gray-400">No users found</td></tr>
+                <tr><td colSpan={7} className="text-center py-10 text-gray-400">{t('user.noUsers')}</td></tr>
               )}
             </tbody>
           </table>

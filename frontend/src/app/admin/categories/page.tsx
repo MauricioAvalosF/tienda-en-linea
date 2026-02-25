@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Plus, Pencil, X } from 'lucide-react';
 import { api } from '@/lib/api';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -19,6 +20,8 @@ function slugify(str: string) {
 }
 
 function CategoriesContent() {
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -50,15 +53,15 @@ function CategoriesContent() {
     try {
       if (editing) {
         await api.patch(`/admin/categories/${editing.id}`, form);
-        toast.success('Category updated');
+        toast.success(t('category.updated'));
       } else {
         await api.post('/admin/categories', form);
-        toast.success('Category created');
+        toast.success(t('category.created'));
       }
       setShowModal(false);
       fetchCategories();
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Error saving category';
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || tc('error');
       toast.error(msg);
     } finally {
       setSaving(false);
@@ -68,19 +71,19 @@ function CategoriesContent() {
   const toggleActive = async (c: Category) => {
     try {
       await api.patch(`/admin/categories/${c.id}`, { isActive: !c.isActive });
-      toast.success(c.isActive ? 'Category deactivated' : 'Category activated');
+      toast.success(c.isActive ? t('category.deactivated') : t('category.activated'));
       fetchCategories();
     } catch {
-      toast.error('Error updating category');
+      toast.error(tc('error'));
     }
   };
 
   return (
     <>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Categories</h1>
+        <h1 className="text-2xl font-bold">{t('category.title')}</h1>
         <button onClick={openCreate} className="btn-primary flex items-center gap-2">
-          <Plus size={18} /> Add Category
+          <Plus size={18} /> {t('category.add')}
         </button>
       </div>
 
@@ -91,12 +94,12 @@ function CategoriesContent() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="text-left px-4 py-3">Name (EN)</th>
-                <th className="text-left px-4 py-3">Nombre (ES)</th>
-                <th className="text-left px-4 py-3">Slug</th>
-                <th className="text-left px-4 py-3">Products</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="text-left px-4 py-3">Actions</th>
+                <th className="text-left px-4 py-3">{t('category.col.nameEN')}</th>
+                <th className="text-left px-4 py-3">{t('category.col.nameES')}</th>
+                <th className="text-left px-4 py-3">{t('category.col.slug')}</th>
+                <th className="text-left px-4 py-3">{t('category.col.products')}</th>
+                <th className="text-left px-4 py-3">{t('category.col.status')}</th>
+                <th className="text-left px-4 py-3">{t('category.col.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y dark:divide-gray-800">
@@ -110,23 +113,23 @@ function CategoriesContent() {
                   </td>
                   <td className="px-4 py-3">
                     <span className={`badge ${c.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                      {c.isActive ? 'Active' : 'Inactive'}
+                      {c.isActive ? t('category.active') : t('category.inactive')}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
-                      <button onClick={() => openEdit(c)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600" title="Edit">
+                      <button onClick={() => openEdit(c)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600">
                         <Pencil size={15} />
                       </button>
                       <button onClick={() => toggleActive(c)} className={`text-xs px-2 py-1 rounded-lg border font-medium transition-colors ${c.isActive ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-green-200 text-green-600 hover:bg-green-50'}`}>
-                        {c.isActive ? 'Deactivate' : 'Activate'}
+                        {c.isActive ? t('category.deactivate') : t('category.activate')}
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
               {!categories.length && (
-                <tr><td colSpan={6} className="text-center py-10 text-gray-400">No categories yet</td></tr>
+                <tr><td colSpan={6} className="text-center py-10 text-gray-400">{t('category.noCategories')}</td></tr>
               )}
             </tbody>
           </table>
@@ -137,35 +140,35 @@ function CategoriesContent() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md">
             <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-lg font-bold">{editing ? 'Edit Category' : 'New Category'}</h2>
+              <h2 className="text-lg font-bold">{editing ? t('category.edit') : t('category.new')}</h2>
               <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Name (EN)</label>
+                <label className="block text-sm font-medium mb-1">{t('category.nameEN')}</label>
                 <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value, slug: slugify(e.target.value) })} className="input" required />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Nombre (ES)</label>
+                <label className="block text-sm font-medium mb-1">{t('category.nameES')}</label>
                 <input value={form.nameEs} onChange={(e) => setForm({ ...form, nameEs: e.target.value })} className="input" required />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Slug</label>
+                <label className="block text-sm font-medium mb-1">{t('category.slug')}</label>
                 <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="input" required />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Description</label>
+                <label className="block text-sm font-medium mb-1">{t('category.description')}</label>
                 <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="input min-h-[80px]" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Image URL</label>
+                <label className="block text-sm font-medium mb-1">{t('category.imageUrl')}</label>
                 <input value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} className="input" placeholder="https://..." />
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="submit" disabled={saving} className="btn-primary flex-1 py-2.5">
-                  {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
+                  {saving ? t('category.saving') : editing ? t('category.update') : t('category.create')}
                 </button>
-                <button type="button" onClick={() => setShowModal(false)} className="btn-secondary px-6">Cancel</button>
+                <button type="button" onClick={() => setShowModal(false)} className="btn-secondary px-6">{tc('cancel')}</button>
               </div>
             </form>
           </div>

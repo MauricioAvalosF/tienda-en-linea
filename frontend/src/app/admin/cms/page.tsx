@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ProtectedPage from '@/components/auth/ProtectedPage';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 import { Save, Globe, Layout, Settings2, Eye, EyeOff, Image as ImageIcon, Plus, Trash2 } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -57,6 +58,7 @@ function FieldGroup({ label, children }: { label: string; children: React.ReactN
 // ─── Section Editor ───────────────────────────────────────────────────────────
 
 function SectionEditor({ section, onSave }: { section: CmsSection; onSave: () => void }) {
+  const t = useTranslations('admin');
   const [form, setForm] = useState<CmsSection>(section);
   const [saving, setSaving] = useState(false);
 
@@ -68,10 +70,10 @@ function SectionEditor({ section, onSave }: { section: CmsSection; onSave: () =>
     setSaving(true);
     try {
       await api.patch(`/admin/cms/sections/${form.key}`, form);
-      toast.success('Section saved!');
+      toast.success(t('cms.saveSection'));
       onSave();
     } catch {
-      toast.error('Error saving section');
+      toast.error('Error');
     } finally {
       setSaving(false);
     }
@@ -82,7 +84,7 @@ function SectionEditor({ section, onSave }: { section: CmsSection; onSave: () =>
     set('isActive', newActive);
     try {
       await api.patch(`/admin/cms/sections/${form.key}`, { isActive: newActive });
-      toast.success(newActive ? 'Section activated' : 'Section hidden');
+      toast.success(newActive ? t('cms.visible') : t('cms.hidden'));
       onSave();
     } catch {
       toast.error('Error updating section');
@@ -98,7 +100,7 @@ function SectionEditor({ section, onSave }: { section: CmsSection; onSave: () =>
           <span className="text-xs text-gray-400">{SECTION_TYPE_LABELS[form.type] || form.type} · key: {form.key}</span>
         </div>
         <button onClick={toggleActive} className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg border font-medium transition-colors ${form.isActive ? 'border-green-300 text-green-600 hover:bg-green-50' : 'border-gray-300 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
-          {form.isActive ? <><Eye size={14} /> Visible</> : <><EyeOff size={14} /> Hidden</>}
+          {form.isActive ? <><Eye size={14} /> {t('cms.visible')}</> : <><EyeOff size={14} /> {t('cms.hidden')}</>}
         </button>
       </div>
 
@@ -152,7 +154,7 @@ function SectionEditor({ section, onSave }: { section: CmsSection; onSave: () =>
       {/* CTA Buttons */}
       {(form.type === 'hero' || form.type === 'banner' || form.type === 'announcement') && (
         <div className="space-y-4 border rounded-xl p-4 dark:border-gray-700">
-          <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">CTA Button 1</p>
+          <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">{t('cms.ctaButton1')}</p>
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-1">
               <FieldGroup label="Text (EN)">
@@ -173,7 +175,7 @@ function SectionEditor({ section, onSave }: { section: CmsSection; onSave: () =>
 
           {form.type === 'hero' && (
             <>
-              <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">CTA Button 2 (optional)</p>
+              <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">{t('cms.ctaButton2')}</p>
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-1">
                   <FieldGroup label="Text (EN)">
@@ -209,13 +211,13 @@ function SectionEditor({ section, onSave }: { section: CmsSection; onSave: () =>
       )}
 
       {/* Display order */}
-      <FieldGroup label="Display Order">
+      <FieldGroup label={t('cms.displayOrder')}>
         <input type="number" value={form.order} onChange={(e) => set('order', parseInt(e.target.value))} className="input text-sm w-24" />
       </FieldGroup>
 
       <button onClick={handleSave} disabled={saving} className="btn-primary flex items-center gap-2 px-6">
         <Save size={16} />
-        {saving ? 'Saving...' : 'Save Section'}
+        {saving ? t('cms.saving') : t('cms.saveSection')}
       </button>
     </div>
   );
@@ -310,6 +312,8 @@ function SettingsEditor({ settings, onSave }: { settings: SiteSetting[]; onSave:
 // ─── New Section Modal ────────────────────────────────────────────────────────
 
 function NewSectionModal({ onCreated, onClose }: { onCreated: () => void; onClose: () => void }) {
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
   const [form, setForm] = useState({ key: '', label: '', type: 'text', order: 10 });
   const [saving, setSaving] = useState(false);
 
@@ -318,11 +322,11 @@ function NewSectionModal({ onCreated, onClose }: { onCreated: () => void; onClos
     setSaving(true);
     try {
       await api.post('/admin/cms/sections', { ...form, isActive: true });
-      toast.success('Section created!');
+      toast.success(t('cms.create'));
       onCreated();
       onClose();
     } catch {
-      toast.error('Error creating section (key must be unique)');
+      toast.error('Error (key must be unique)');
     } finally {
       setSaving(false);
     }
@@ -331,18 +335,18 @@ function NewSectionModal({ onCreated, onClose }: { onCreated: () => void; onClos
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md p-6">
-        <h2 className="font-bold text-lg mb-4">New Section</h2>
+        <h2 className="font-bold text-lg mb-4">{t('cms.newSection')}</h2>
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Key (unique identifier)</label>
+            <label className="block text-sm font-medium mb-1">{t('cms.sectionKey')}</label>
             <input value={form.key} onChange={(e) => setForm({ ...form, key: e.target.value.toLowerCase().replace(/\s/g, '_') })} className="input" placeholder="my_section" required />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Label (display name)</label>
+            <label className="block text-sm font-medium mb-1">{t('cms.sectionLabel')}</label>
             <input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} className="input" placeholder="My Section" required />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Type</label>
+            <label className="block text-sm font-medium mb-1">{t('cms.sectionType')}</label>
             <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="input">
               <option value="hero">Hero Banner</option>
               <option value="banner">Promo Banner</option>
@@ -351,12 +355,12 @@ function NewSectionModal({ onCreated, onClose }: { onCreated: () => void; onClos
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Order</label>
+            <label className="block text-sm font-medium mb-1">{t('cms.sectionOrder')}</label>
             <input type="number" value={form.order} onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) })} className="input w-24" />
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? 'Creating...' : 'Create Section'}</button>
-            <button type="button" onClick={onClose} className="btn-secondary px-5">Cancel</button>
+            <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? t('cms.creating') : t('cms.create')}</button>
+            <button type="button" onClick={onClose} className="btn-secondary px-5">{tc('cancel')}</button>
           </div>
         </form>
       </div>
@@ -367,6 +371,7 @@ function NewSectionModal({ onCreated, onClose }: { onCreated: () => void; onClos
 // ─── Main CMS Page ────────────────────────────────────────────────────────────
 
 function CmsContent() {
+  const t = useTranslations('admin');
   const [tab, setTab] = useState<Tab>('sections');
   const [sections, setSections] = useState<CmsSection[]>([]);
   const [settings, setSettings] = useState<SiteSetting[]>([]);
@@ -396,7 +401,7 @@ function CmsContent() {
     if (!confirm(`Delete section "${key}"?`)) return;
     try {
       await api.delete(`/admin/cms/sections/${key}`);
-      toast.success('Section deleted');
+      toast.success(t('cms.newSection'));
       setSelectedSection(null);
       fetchData();
     } catch {
@@ -411,20 +416,20 @@ function CmsContent() {
   return (
     <>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">CMS Editor</h1>
+        <h1 className="text-2xl font-bold">{t('cms.title')}</h1>
         <div className="flex items-center gap-2">
           {tab === 'sections' && (
             <button onClick={() => setShowNewSection(true)} className="btn-secondary flex items-center gap-1.5 text-sm">
-              <Plus size={16} /> New Section
+              <Plus size={16} /> {t('cms.newSection')}
             </button>
           )}
           {/* Tabs */}
           <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
             <button onClick={() => setTab('sections')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${tab === 'sections' ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-              <Layout size={15} /> Sections
+              <Layout size={15} /> {t('cms.sections')}
             </button>
             <button onClick={() => setTab('settings')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${tab === 'settings' ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-              <Settings2 size={15} /> Settings
+              <Settings2 size={15} /> {t('cms.settings')}
             </button>
           </div>
         </div>
@@ -465,7 +470,7 @@ function CmsContent() {
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-3">
                 <Globe size={40} />
-                <p>Select a section to edit</p>
+                <p>{t('cms.selectSection')}</p>
               </div>
             )}
           </div>

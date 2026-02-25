@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { X, Package, CreditCard, Tag, User } from 'lucide-react';
 import { api } from '@/lib/api';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -37,7 +38,7 @@ interface OrderDetail {
     total: number;
     product: { name: string; nameEs: string; imageUrls: string[]; slug: string; price: number };
   }>;
-  address: { street: string; city: string; state: string; country: string; postalCode: string } | null;
+  address: { street: string; city: string; country: string; postalCode: string; colonia?: string | null } | null;
 }
 
 const STATUSES = ['PENDING', 'PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'];
@@ -56,6 +57,7 @@ function OrderDetailModal({ orderId, onClose, onStatusUpdate }: {
   onClose: () => void;
   onStatusUpdate: () => void;
 }) {
+  const t = useTranslations('admin');
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -70,9 +72,9 @@ function OrderDetailModal({ orderId, onClose, onStatusUpdate }: {
       await api.patch(`/admin/orders/${orderId}/status`, { status });
       setOrder((prev) => prev ? { ...prev, status } : null);
       onStatusUpdate();
-      toast.success('Order status updated');
+      toast.success(t('order.modal.statusUpdated'));
     } catch {
-      toast.error('Error updating order');
+      toast.error('Error');
     }
   };
 
@@ -86,9 +88,9 @@ function OrderDetailModal({ orderId, onClose, onStatusUpdate }: {
             <div className="animate-pulse h-6 bg-gray-200 dark:bg-gray-700 rounded w-48" />
           ) : (
             <div>
-              <p className="font-bold text-lg">Order #{order.id.slice(-8).toUpperCase()}</p>
+              <p className="font-bold text-lg">#{order.id.slice(-8).toUpperCase()}</p>
               <p className="text-sm text-gray-500">
-                {new Date(order.createdAt).toLocaleDateString('en-US', {
+                {new Date(order.createdAt).toLocaleDateString(undefined, {
                   year: 'numeric', month: 'long', day: 'numeric',
                   hour: '2-digit', minute: '2-digit',
                 })}
@@ -109,7 +111,7 @@ function OrderDetailModal({ orderId, onClose, onStatusUpdate }: {
             {/* Customer */}
             <div>
               <h3 className="font-semibold mb-2 flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wide">
-                <User size={13} /> Customer
+                <User size={13} /> {t('order.modal.customer')}
               </h3>
               <p className="font-medium">{order.user.firstName} {order.user.lastName}</p>
               <p className="text-sm text-gray-500">{order.user.email}</p>
@@ -132,7 +134,7 @@ function OrderDetailModal({ orderId, onClose, onStatusUpdate }: {
             {/* Items */}
             <div>
               <h3 className="font-semibold mb-3 flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wide">
-                <Package size={13} /> Items
+                <Package size={13} /> {t('order.modal.items')}
               </h3>
               <div className="space-y-3">
                 {order.items.map((item) => (
@@ -159,31 +161,31 @@ function OrderDetailModal({ orderId, onClose, onStatusUpdate }: {
             {/* Pricing */}
             <div className="border-t dark:border-gray-700 pt-4">
               <h3 className="font-semibold mb-3 flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wide">
-                <Tag size={13} /> Summary
+                <Tag size={13} /> {t('order.modal.summary')}
               </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Subtotal</span>
+                  <span className="text-gray-500">{t('order.modal.subtotal')}</span>
                   <span>${Number(order.subtotal).toFixed(2)}</span>
                 </div>
                 {order.discountAmount && Number(order.discountAmount) > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>Discount {order.discountCode ? `(${order.discountCode})` : ''}</span>
+                    <span>{t('order.modal.discount')} {order.discountCode ? `(${order.discountCode})` : ''}</span>
                     <span>−${Number(order.discountAmount).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Shipping</span>
-                  <span>{Number(order.shippingCost) === 0 ? 'Free' : `$${Number(order.shippingCost).toFixed(2)}`}</span>
+                  <span className="text-gray-500">{t('order.modal.shipping')}</span>
+                  <span>{Number(order.shippingCost) === 0 ? t('order.modal.free') : `$${Number(order.shippingCost).toFixed(2)}`}</span>
                 </div>
                 {Number(order.tax) > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Tax</span>
+                    <span className="text-gray-500">{t('order.modal.tax')}</span>
                     <span>${Number(order.tax).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-base border-t dark:border-gray-700 pt-2 mt-2">
-                  <span>Total</span>
+                  <span>{t('order.modal.total')}</span>
                   <span>${Number(order.total).toFixed(2)}</span>
                 </div>
               </div>
@@ -192,22 +194,22 @@ function OrderDetailModal({ orderId, onClose, onStatusUpdate }: {
             {/* Payment */}
             <div className="border-t dark:border-gray-700 pt-4">
               <h3 className="font-semibold mb-3 flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wide">
-                <CreditCard size={13} /> Payment
+                <CreditCard size={13} /> {t('order.modal.payment')}
               </h3>
               <div className="text-sm space-y-1">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Method</span>
-                  <span className="font-medium">{isTestOrder ? 'Test Order' : 'Stripe'}</span>
+                  <span className="text-gray-500">{t('order.modal.method')}</span>
+                  <span className="font-medium">{isTestOrder ? t('order.modal.testOrder') : 'Stripe'}</span>
                 </div>
                 {order.stripeSessionId && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Session</span>
+                    <span className="text-gray-500">{t('order.modal.session')}</span>
                     <span className="font-mono text-xs text-gray-500">{order.stripeSessionId.slice(-16)}</span>
                   </div>
                 )}
                 {order.stripePaymentId && !isTestOrder && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Payment ID</span>
+                    <span className="text-gray-500">{t('order.modal.paymentId')}</span>
                     <span className="font-mono text-xs text-gray-500">{order.stripePaymentId.slice(-16)}</span>
                   </div>
                 )}
@@ -217,9 +219,9 @@ function OrderDetailModal({ orderId, onClose, onStatusUpdate }: {
             {/* Address */}
             {order.address && (
               <div className="border-t dark:border-gray-700 pt-4">
-                <h3 className="font-semibold mb-2 text-xs text-gray-500 uppercase tracking-wide">Shipping Address</h3>
+                <h3 className="font-semibold mb-2 text-xs text-gray-500 uppercase tracking-wide">{t('order.modal.shippingAddress')}</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {order.address.street}, {order.address.city}, {order.address.state} {order.address.postalCode}, {order.address.country}
+                  {order.address.street}, {order.address.colonia ? `${order.address.colonia}, ` : ''}{order.address.city} {order.address.postalCode}, {order.address.country}
                 </p>
               </div>
             )}
@@ -231,6 +233,7 @@ function OrderDetailModal({ orderId, onClose, onStatusUpdate }: {
 }
 
 function OrdersContent() {
+  const t = useTranslations('admin');
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
@@ -250,19 +253,19 @@ function OrdersContent() {
   const updateStatus = async (id: string, status: string) => {
     try {
       await api.patch(`/admin/orders/${id}/status`, { status });
-      toast.success('Order updated');
+      toast.success(t('order.updated'));
       fetchOrders();
     } catch {
-      toast.error('Error updating order');
+      toast.error('Error');
     }
   };
 
   return (
     <>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Orders</h1>
+        <h1 className="text-2xl font-bold">{t('order.title')}</h1>
         <select value={filter} onChange={(e) => setFilter(e.target.value)} className="input w-48">
-          <option value="">All statuses</option>
+          <option value="">{t('order.allStatuses')}</option>
           {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
       </div>
@@ -276,12 +279,12 @@ function OrdersContent() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="text-left px-4 py-3">Order</th>
-                <th className="text-left px-4 py-3">Customer</th>
-                <th className="text-left px-4 py-3">Items</th>
-                <th className="text-left px-4 py-3">Total</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="text-left px-4 py-3">Change Status</th>
+                <th className="text-left px-4 py-3">{t('order.col.order')}</th>
+                <th className="text-left px-4 py-3">{t('order.col.customer')}</th>
+                <th className="text-left px-4 py-3">{t('order.col.items')}</th>
+                <th className="text-left px-4 py-3">{t('order.col.total')}</th>
+                <th className="text-left px-4 py-3">{t('order.col.status')}</th>
+                <th className="text-left px-4 py-3">{t('order.col.changeStatus')}</th>
               </tr>
             </thead>
             <tbody className="divide-y dark:divide-gray-800">
@@ -318,7 +321,7 @@ function OrdersContent() {
                 </tr>
               ))}
               {!orders.length && (
-                <tr><td colSpan={6} className="text-center py-10 text-gray-400">No orders found</td></tr>
+                <tr><td colSpan={6} className="text-center py-10 text-gray-400">{t('order.noOrders')}</td></tr>
               )}
             </tbody>
           </table>

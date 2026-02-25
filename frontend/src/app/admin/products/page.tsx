@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Plus, Pencil, ToggleLeft, ToggleRight, X } from 'lucide-react';
 import { api } from '@/lib/api';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -25,6 +26,8 @@ function slugify(str: string) {
 }
 
 function ProductsContent() {
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,18 +75,17 @@ function ProductsContent() {
         weight: form.weight ? parseFloat(form.weight) : null,
         imageUrls: form.imageUrls.split(',').map((s) => s.trim()).filter(Boolean),
       };
-
       if (editing) {
         await api.patch(`/admin/products/${editing.id}`, payload);
-        toast.success('Product updated');
+        toast.success(t('product.updated'));
       } else {
         await api.post('/admin/products', payload);
-        toast.success('Product created');
+        toast.success(t('product.created'));
       }
       setShowModal(false);
       fetchProducts();
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Error saving product';
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || t('product.updated');
       toast.error(msg);
     } finally {
       setSaving(false);
@@ -94,23 +96,23 @@ function ProductsContent() {
     try {
       if (p.isActive) {
         await api.delete(`/admin/products/${p.id}`);
-        toast.success('Product deactivated');
+        toast.success(t('product.deactivated'));
       } else {
         await api.patch(`/admin/products/${p.id}`, { isActive: true });
-        toast.success('Product activated');
+        toast.success(t('product.activated'));
       }
       fetchProducts();
     } catch {
-      toast.error('Error updating product');
+      toast.error('Error');
     }
   };
 
   return (
     <>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Products</h1>
+        <h1 className="text-2xl font-bold">{t('product.title')}</h1>
         <button onClick={openCreate} className="btn-primary flex items-center gap-2">
-          <Plus size={18} /> Add Product
+          <Plus size={18} /> {t('product.add')}
         </button>
       </div>
 
@@ -121,12 +123,12 @@ function ProductsContent() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="text-left px-4 py-3">Product</th>
-                <th className="text-left px-4 py-3">Category</th>
-                <th className="text-left px-4 py-3">Price</th>
-                <th className="text-left px-4 py-3">Stock</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="text-left px-4 py-3">Actions</th>
+                <th className="text-left px-4 py-3">{t('product.col.product')}</th>
+                <th className="text-left px-4 py-3">{t('product.col.category')}</th>
+                <th className="text-left px-4 py-3">{t('product.col.price')}</th>
+                <th className="text-left px-4 py-3">{t('product.col.stock')}</th>
+                <th className="text-left px-4 py-3">{t('product.col.status')}</th>
+                <th className="text-left px-4 py-3">{t('product.col.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y dark:divide-gray-800">
@@ -152,15 +154,15 @@ function ProductsContent() {
                   </td>
                   <td className="px-4 py-3">
                     <span className={`badge ${p.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                      {p.isActive ? 'Active' : 'Inactive'}
+                      {p.isActive ? t('product.active') : t('product.inactive')}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600" title="Edit">
+                      <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600">
                         <Pencil size={15} />
                       </button>
-                      <button onClick={() => toggleActive(p)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title={p.isActive ? 'Deactivate' : 'Activate'}>
+                      <button onClick={() => toggleActive(p)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                         {p.isActive ? <ToggleRight size={18} className="text-green-600" /> : <ToggleLeft size={18} className="text-gray-400" />}
                       </button>
                     </div>
@@ -168,7 +170,7 @@ function ProductsContent() {
                 </tr>
               ))}
               {!products.length && (
-                <tr><td colSpan={6} className="text-center py-10 text-gray-400">No products yet</td></tr>
+                <tr><td colSpan={6} className="text-center py-10 text-gray-400">{t('product.noProducts')}</td></tr>
               )}
             </tbody>
           </table>
@@ -180,74 +182,74 @@ function ProductsContent() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-lg font-bold">{editing ? 'Edit Product' : 'New Product'}</h2>
+              <h2 className="text-lg font-bold">{editing ? t('product.edit') : t('product.new')}</h2>
               <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Name (EN)</label>
+                  <label className="block text-sm font-medium mb-1">{t('product.nameEN')}</label>
                   <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value, slug: slugify(e.target.value) })} className="input" required />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Nombre (ES)</label>
+                  <label className="block text-sm font-medium mb-1">{t('product.nameES')}</label>
                   <input value={form.nameEs} onChange={(e) => setForm({ ...form, nameEs: e.target.value })} className="input" required />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Slug</label>
+                <label className="block text-sm font-medium mb-1">{t('product.slug')}</label>
                 <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="input" required />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Description (EN)</label>
+                  <label className="block text-sm font-medium mb-1">{t('product.descEN')}</label>
                   <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="input min-h-[80px]" required />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Descripción (ES)</label>
+                  <label className="block text-sm font-medium mb-1">{t('product.descES')}</label>
                   <textarea value={form.descriptionEs} onChange={(e) => setForm({ ...form, descriptionEs: e.target.value })} className="input min-h-[80px]" required />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Price ($)</label>
+                  <label className="block text-sm font-medium mb-1">{t('product.price')}</label>
                   <input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="input" required />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Compare Price ($)</label>
+                  <label className="block text-sm font-medium mb-1">{t('product.comparePrice')}</label>
                   <input type="number" step="0.01" value={form.comparePrice} onChange={(e) => setForm({ ...form, comparePrice: e.target.value })} className="input" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Stock</label>
+                  <label className="block text-sm font-medium mb-1">{t('product.stock')}</label>
                   <input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} className="input" required />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">SKU</label>
+                  <label className="block text-sm font-medium mb-1">{t('product.sku')}</label>
                   <input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} className="input" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Category</label>
+                  <label className="block text-sm font-medium mb-1">{t('product.category')}</label>
                   <select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })} className="input" required>
-                    <option value="">Select category</option>
+                    <option value="">{t('product.selectCategory')}</option>
                     {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Image URLs (comma-separated)</label>
+                <label className="block text-sm font-medium mb-1">{t('product.imageUrls')}</label>
                 <input value={form.imageUrls} onChange={(e) => setForm({ ...form, imageUrls: e.target.value })} className="input" placeholder="https://..." />
               </div>
               <div className="flex items-center gap-2">
                 <input type="checkbox" id="featured" checked={form.isFeatured} onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} className="w-4 h-4 accent-primary-600" />
-                <label htmlFor="featured" className="text-sm font-medium">Featured product</label>
+                <label htmlFor="featured" className="text-sm font-medium">{t('product.featured')}</label>
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="submit" disabled={saving} className="btn-primary flex-1 py-2.5">
-                  {saving ? 'Saving...' : editing ? 'Update Product' : 'Create Product'}
+                  {saving ? t('product.saving') : editing ? t('product.update') : t('product.create')}
                 </button>
-                <button type="button" onClick={() => setShowModal(false)} className="btn-secondary px-6">Cancel</button>
+                <button type="button" onClick={() => setShowModal(false)} className="btn-secondary px-6">{tc('cancel')}</button>
               </div>
             </form>
           </div>

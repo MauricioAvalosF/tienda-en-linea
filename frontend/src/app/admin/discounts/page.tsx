@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ProtectedPage from '@/components/auth/ProtectedPage';
@@ -29,12 +30,6 @@ interface Discount {
   group: Group | null;
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  PERCENTAGE: '% Off',
-  FIXED: '$ Off',
-  FREE_SHIPPING: 'Free Shipping',
-};
-
 interface ModalProps {
   discount: Partial<Discount> | null;
   groups: Group[];
@@ -43,6 +38,8 @@ interface ModalProps {
 }
 
 function DiscountModal({ discount, groups, onClose, onSave }: ModalProps) {
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
   const [form, setForm] = useState({
     name: discount?.name ?? '',
     code: discount?.code ?? '',
@@ -74,141 +71,98 @@ function DiscountModal({ discount, groups, onClose, onSave }: ModalProps) {
     try {
       if (discount?.id) {
         await api.patch(`/admin/discounts/${discount.id}`, payload);
-        toast.success('Discount updated');
+        toast.success(t('discount.updated'));
       } else {
         await api.post('/admin/discounts', payload);
-        toast.success('Discount created');
+        toast.success(t('discount.created'));
       }
       onSave();
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      toast.error(msg || 'Error saving discount');
+      toast.error(msg || tc('error'));
     } finally {
       setSaving(false);
     }
   };
 
+  const valueLabel = form.type === 'PERCENTAGE' ? t('discount.valuePct')
+    : form.type === 'FIXED' ? t('discount.valueFixed')
+    : t('discount.valueFree');
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto py-8">
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-lg p-6 mx-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">{discount?.id ? 'Edit Discount' : 'New Discount'}</h2>
+          <h2 className="text-lg font-semibold">{discount?.id ? t('discount.edit') : t('discount.new')}</h2>
           <button onClick={onClose}><X size={20} /></button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Name *</label>
-            <input
-              className="input w-full"
-              value={form.name}
-              onChange={(e) => set('name', e.target.value)}
-              placeholder="e.g. VIP 15% Off"
-              required
-            />
+            <label className="block text-sm font-medium mb-1">{t('discount.name')} *</label>
+            <input className="input w-full" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder={t('discount.namePlaceholder')} required />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">Type *</label>
-              <select
-                className="input w-full"
-                value={form.type}
-                onChange={(e) => set('type', e.target.value)}
-              >
-                <option value="PERCENTAGE">Percentage Off</option>
-                <option value="FIXED">Fixed Amount Off</option>
-                <option value="FREE_SHIPPING">Free Shipping</option>
+              <label className="block text-sm font-medium mb-1">{t('discount.type')} *</label>
+              <select className="input w-full" value={form.type} onChange={(e) => set('type', e.target.value)}>
+                <option value="PERCENTAGE">{t('discount.typePercentage')}</option>
+                <option value="FIXED">{t('discount.typeFixed')}</option>
+                <option value="FREE_SHIPPING">{t('discount.typeFreeShipping')}</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">
-                {form.type === 'PERCENTAGE' ? 'Value (%)' : form.type === 'FIXED' ? 'Value ($)' : 'Value (ignored)'}
-              </label>
-              <input
-                className="input w-full"
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.value}
-                onChange={(e) => set('value', e.target.value)}
-                disabled={form.type === 'FREE_SHIPPING'}
-              />
+              <label className="block text-sm font-medium mb-1">{valueLabel}</label>
+              <input className="input w-full" type="number" min="0" step="0.01" value={form.value} onChange={(e) => set('value', e.target.value)} disabled={form.type === 'FREE_SHIPPING'} />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1">
-              Coupon Code <span className="text-gray-400 font-normal">(leave blank for automatic)</span>
+              {t('discount.couponCode')} <span className="text-gray-400 font-normal">({t('discount.leaveBlank')})</span>
             </label>
-            <input
-              className="input w-full uppercase"
-              value={form.code}
-              onChange={(e) => set('code', e.target.value.toUpperCase())}
-              placeholder="e.g. SUMMER20"
-            />
+            <input className="input w-full uppercase" value={form.code} onChange={(e) => set('code', e.target.value.toUpperCase())} placeholder="SUMMER20" />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Group Restriction <span className="text-gray-400 font-normal">(optional)</span></label>
+            <label className="block text-sm font-medium mb-1">{t('discount.groupRestriction')} <span className="text-gray-400 font-normal">({t('discount.optional')})</span></label>
             <select className="input w-full" value={form.groupId} onChange={(e) => set('groupId', e.target.value)}>
-              <option value="">All groups</option>
-              {groups.map((g) => (
-                <option key={g.id} value={g.id}>{g.name}</option>
-              ))}
+              <option value="">{t('discount.allGroups')}</option>
+              {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
             </select>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">Min Order ($)</label>
-              <input
-                className="input w-full"
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.minOrderAmount}
-                onChange={(e) => set('minOrderAmount', e.target.value)}
-                placeholder="None"
-              />
+              <label className="block text-sm font-medium mb-1">{t('discount.minOrder')}</label>
+              <input className="input w-full" type="number" min="0" step="0.01" value={form.minOrderAmount} onChange={(e) => set('minOrderAmount', e.target.value)} placeholder={t('discount.none')} />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Max Uses</label>
-              <input
-                className="input w-full"
-                type="number"
-                min="1"
-                value={form.maxUses}
-                onChange={(e) => set('maxUses', e.target.value)}
-                placeholder="Unlimited"
-              />
+              <label className="block text-sm font-medium mb-1">{t('discount.maxUses')}</label>
+              <input className="input w-full" type="number" min="1" value={form.maxUses} onChange={(e) => set('maxUses', e.target.value)} placeholder={t('discount.unlimited')} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">Starts At</label>
+              <label className="block text-sm font-medium mb-1">{t('discount.startsAt')}</label>
               <input className="input w-full" type="date" value={form.startsAt} onChange={(e) => set('startsAt', e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Expires At</label>
+              <label className="block text-sm font-medium mb-1">{t('discount.expiresAt')}</label>
               <input className="input w-full" type="date" value={form.expiresAt} onChange={(e) => set('expiresAt', e.target.value)} />
             </div>
           </div>
 
           <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={form.isActive}
-              onChange={(e) => set('isActive', e.target.checked)}
-              className="w-4 h-4 accent-amber-500"
-            />
-            <span className="text-sm font-medium">Active</span>
+            <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} className="w-4 h-4 accent-amber-500" />
+            <span className="text-sm font-medium">{t('discount.active')}</span>
           </label>
 
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="btn-secondary px-4 py-2">Cancel</button>
+            <button type="button" onClick={onClose} className="btn-secondary px-4 py-2">{tc('cancel')}</button>
             <button type="submit" disabled={saving} className="btn-primary px-4 py-2">
-              {saving ? 'Saving…' : 'Save'}
+              {saving ? t('discount.saving') : t('discount.save')}
             </button>
           </div>
         </form>
@@ -218,6 +172,8 @@ function DiscountModal({ discount, groups, onClose, onSave }: ModalProps) {
 }
 
 function DiscountsContent() {
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
   const [discounts, setDiscounts] = useState<Discount[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
@@ -225,13 +181,9 @@ function DiscountsContent() {
 
   const fetchData = () => {
     setLoading(true);
-    Promise.all([
-      api.get('/admin/discounts'),
-      api.get('/admin/groups'),
-    ]).then(([d, g]) => {
-      setDiscounts(d.data);
-      setGroups(g.data);
-    }).finally(() => setLoading(false));
+    Promise.all([api.get('/admin/discounts'), api.get('/admin/groups')])
+      .then(([d, g]) => { setDiscounts(d.data); setGroups(g.data); })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => { fetchData(); }, []);
@@ -239,39 +191,45 @@ function DiscountsContent() {
   const toggleActive = async (d: Discount) => {
     try {
       await api.patch(`/admin/discounts/${d.id}`, { isActive: !d.isActive });
-      toast.success(d.isActive ? 'Discount deactivated' : 'Discount activated');
+      toast.success(d.isActive ? t('discount.inactive') : t('discount.active'));
       fetchData();
     } catch {
-      toast.error('Error updating discount');
+      toast.error(tc('error'));
     }
   };
 
   const deleteDiscount = async (d: Discount) => {
-    if (!confirm(`Delete discount "${d.name}"?`)) return;
+    if (!confirm(`${tc('delete')} "${d.name}"?`)) return;
     try {
       await api.delete(`/admin/discounts/${d.id}`);
-      toast.success('Discount deleted');
+      toast.success(t('discount.deleted'));
       fetchData();
     } catch {
-      toast.error('Error deleting discount');
+      toast.error(tc('error'));
     }
   };
 
   const formatValue = (d: Discount) => {
     if (d.type === 'PERCENTAGE') return `${d.value}%`;
     if (d.type === 'FIXED') return `$${d.value.toFixed(2)}`;
-    return 'Free';
+    return t('discount.typeFreeShort');
+  };
+
+  const typeLabel: Record<string, string> = {
+    PERCENTAGE: t('discount.typePercentageShort'),
+    FIXED: t('discount.typeFixedShort'),
+    FREE_SHIPPING: t('discount.typeFreeShort'),
   };
 
   return (
     <>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Discounts</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Manage coupon codes and automatic group discounts</p>
+          <h1 className="text-2xl font-bold">{t('discount.title')}</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{t('discount.subtitle')}</p>
         </div>
         <button onClick={() => setModal({})} className="btn-primary flex items-center gap-2 px-4 py-2">
-          <Plus size={16} /> New Discount
+          <Plus size={16} /> {t('discount.new')}
         </button>
       </div>
 
@@ -284,14 +242,14 @@ function DiscountsContent() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="text-left px-4 py-3">Name / Code</th>
-                <th className="text-left px-4 py-3">Type</th>
-                <th className="text-left px-4 py-3">Value</th>
-                <th className="text-left px-4 py-3">Group</th>
-                <th className="text-left px-4 py-3">Uses</th>
-                <th className="text-left px-4 py-3">Expires</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="text-left px-4 py-3">Actions</th>
+                <th className="text-left px-4 py-3">{t('discount.col.nameCode')}</th>
+                <th className="text-left px-4 py-3">{t('discount.col.type')}</th>
+                <th className="text-left px-4 py-3">{t('discount.col.value')}</th>
+                <th className="text-left px-4 py-3">{t('discount.col.group')}</th>
+                <th className="text-left px-4 py-3">{t('discount.col.uses')}</th>
+                <th className="text-left px-4 py-3">{t('discount.col.expires')}</th>
+                <th className="text-left px-4 py-3">{t('discount.col.status')}</th>
+                <th className="text-left px-4 py-3">{t('discount.col.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y dark:divide-gray-800">
@@ -304,23 +262,20 @@ function DiscountsContent() {
                         <Tag size={11} /> {d.code}
                       </span>
                     ) : (
-                      <span className="text-xs text-gray-400">Automatic</span>
+                      <span className="text-xs text-gray-400">{t('discount.automatic')}</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="badge bg-blue-100 text-blue-700">{TYPE_LABELS[d.type]}</span>
+                    <span className="badge bg-blue-100 text-blue-700">{typeLabel[d.type]}</span>
                   </td>
                   <td className="px-4 py-3 font-semibold">{formatValue(d)}</td>
                   <td className="px-4 py-3">
                     {d.group ? (
-                      <span
-                        className="px-2 py-0.5 rounded-full text-white text-xs font-medium"
-                        style={{ backgroundColor: d.group.color }}
-                      >
+                      <span className="px-2 py-0.5 rounded-full text-white text-xs font-medium" style={{ backgroundColor: d.group.color }}>
                         {d.group.name}
                       </span>
                     ) : (
-                      <span className="text-gray-400">All</span>
+                      <span className="text-gray-400">{t('discount.allGroups')}</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-gray-500">
@@ -333,34 +288,26 @@ function DiscountsContent() {
                     <button
                       onClick={() => toggleActive(d)}
                       className={`text-xs px-2 py-1 rounded-full font-medium border transition-colors ${
-                        d.isActive
-                          ? 'bg-green-50 text-green-700 border-green-200'
-                          : 'bg-gray-100 text-gray-500 border-gray-200'
+                        d.isActive ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-100 text-gray-500 border-gray-200'
                       }`}
                     >
-                      {d.isActive ? 'Active' : 'Inactive'}
+                      {d.isActive ? t('discount.active') : t('discount.inactive')}
                     </button>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => setModal(d)}
-                        className="text-xs px-2 py-1 rounded-lg border border-amber-200 text-amber-600 hover:bg-amber-50 font-medium transition-colors flex items-center gap-1"
-                      >
-                        <Pencil size={12} /> Edit
+                      <button onClick={() => setModal(d)} className="text-xs px-2 py-1 rounded-lg border border-amber-200 text-amber-600 hover:bg-amber-50 font-medium transition-colors flex items-center gap-1">
+                        <Pencil size={12} /> {tc('edit')}
                       </button>
-                      <button
-                        onClick={() => deleteDiscount(d)}
-                        className="text-xs px-2 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 font-medium transition-colors flex items-center gap-1"
-                      >
-                        <Trash2 size={12} /> Delete
+                      <button onClick={() => deleteDiscount(d)} className="text-xs px-2 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 font-medium transition-colors flex items-center gap-1">
+                        <Trash2 size={12} /> {tc('delete')}
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
               {!discounts.length && (
-                <tr><td colSpan={8} className="text-center py-10 text-gray-400">No discounts yet</td></tr>
+                <tr><td colSpan={8} className="text-center py-10 text-gray-400">{t('discount.noDiscounts')}</td></tr>
               )}
             </tbody>
           </table>
