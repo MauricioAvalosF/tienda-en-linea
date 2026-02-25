@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingCart, ArrowLeft, Star, Package } from 'lucide-react';
@@ -41,6 +41,7 @@ interface Product {
 export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const locale = useLocale();
+  const t = useTranslations('product');
   const router = useRouter();
   const { addItem, isLoading } = useCartStore();
   const { user } = useAuthStore();
@@ -65,9 +66,9 @@ export default function ProductDetailPage() {
     const displayName = locale === 'es' ? product.nameEs : product.name;
     try {
       await addItem(product.id);
-      toast.success(`${displayName} added to cart`);
+      toast.success(`${displayName} ${t('addedToCart')}`);
     } catch {
-      toast.error('Failed to add to cart');
+      toast.error(t('addToCartError'));
     }
   };
 
@@ -101,7 +102,7 @@ export default function ProductDetailPage() {
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-8 flex-wrap">
           <Link href="/products" className="hover:text-gray-700 flex items-center gap-1">
-            <ArrowLeft size={14} /> All Products
+            <ArrowLeft size={14} /> {t('allProducts')}
           </Link>
           <span>/</span>
           <Link href={`/products?category=${product.category.slug}`} className="hover:text-gray-700">
@@ -125,7 +126,7 @@ export default function ProductDetailPage() {
                   priority
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">No image</div>
+                <div className="w-full h-full flex items-center justify-center text-gray-400">{t('noImage')}</div>
               )}
               {product.comparePrice && Number(product.comparePrice) > Number(product.price) && (
                 <span className="absolute top-4 left-4 bg-red-100 text-red-700 text-sm font-semibold px-3 py-1 rounded-full">
@@ -160,7 +161,7 @@ export default function ProductDetailPage() {
                 {categoryName}
               </Link>
               <h1 className="text-3xl font-bold mt-1">{displayName}</h1>
-              {product.sku && <p className="text-xs text-gray-400 mt-1">SKU: {product.sku}</p>}
+              {product.sku && <p className="text-xs text-gray-400 mt-1">{t('sku')}: {product.sku}</p>}
             </div>
 
             {/* Rating summary */}
@@ -176,7 +177,7 @@ export default function ProductDetailPage() {
                   ))}
                 </div>
                 <span className="text-sm text-gray-500">
-                  {avgRating.toFixed(1)} ({product.reviews.length} {product.reviews.length === 1 ? 'review' : 'reviews'})
+                  {avgRating.toFixed(1)} ({product.reviews.length} {product.reviews.length === 1 ? t('review') : t('reviews')})
                 </span>
               </div>
             )}
@@ -196,7 +197,9 @@ export default function ProductDetailPage() {
             <div className="flex items-center gap-2 text-sm">
               <div className={`w-2 h-2 rounded-full ${inStock ? 'bg-green-500' : 'bg-red-500'}`} />
               <span className={inStock ? 'text-green-700 dark:text-green-400' : 'text-red-600'}>
-                {inStock ? `In stock (${product.stock} available)` : 'Out of stock'}
+                {inStock
+                  ? `${t('inStock')} (${product.stock} ${t('available')})`
+                  : t('outOfStock')}
               </span>
             </div>
 
@@ -207,12 +210,12 @@ export default function ProductDetailPage() {
               className="w-full btn-primary flex items-center justify-center gap-3 py-4 text-base disabled:opacity-50"
             >
               <ShoppingCart size={20} />
-              {isLoading ? 'Adding...' : 'Add to Cart'}
+              {isLoading ? t('adding') : t('addToCart')}
             </button>
 
             {Number(product.price) >= 50 && (
               <p className="text-sm text-gray-500 flex items-center gap-2">
-                <Package size={14} /> Eligible for free shipping on orders over $50
+                <Package size={14} /> {t('freeShipping')}
               </p>
             )}
           </div>
@@ -221,7 +224,7 @@ export default function ProductDetailPage() {
         {/* Reviews */}
         {product.reviews.length > 0 && (
           <div className="mt-16">
-            <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
+            <h2 className="text-2xl font-bold mb-6">{t('customerReviews')}</h2>
             <div className="space-y-4">
               {product.reviews.map((review) => (
                 <div key={review.id} className="card p-4">

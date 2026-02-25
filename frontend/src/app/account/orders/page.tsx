@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { X, Package, CreditCard, Truck, Tag } from 'lucide-react';
 import { api } from '@/lib/api';
 import Navbar from '@/components/layout/Navbar';
@@ -43,6 +44,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function OrderDetailModal({ order, onClose }: { order: Order; onClose: () => void }) {
+  const t = useTranslations('orders');
   const isTestOrder = order.stripeSessionId?.startsWith('test_');
 
   return (
@@ -51,8 +53,12 @@ function OrderDetailModal({ order, onClose }: { order: Order; onClose: () => voi
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-900 z-10">
           <div>
-            <p className="font-bold text-lg">Order #{order.id.slice(-8).toUpperCase()}</p>
-            <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+            <p className="font-bold text-lg">{t('orderNumber', { num: order.id.slice(-8).toUpperCase() })}</p>
+            <p className="text-sm text-gray-500">
+              {new Date(order.createdAt).toLocaleDateString(undefined, {
+                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
+              })}
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <span className={`badge text-sm px-3 py-1 ${STATUS_COLORS[order.status] ?? 'bg-gray-100 text-gray-700'}`}>
@@ -68,7 +74,7 @@ function OrderDetailModal({ order, onClose }: { order: Order; onClose: () => voi
           {/* Items */}
           <div>
             <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-gray-500 uppercase tracking-wide">
-              <Package size={15} /> Items
+              <Package size={15} /> {t('items')}
             </h3>
             <div className="space-y-3">
               {order.items.map((item) => (
@@ -101,31 +107,31 @@ function OrderDetailModal({ order, onClose }: { order: Order; onClose: () => voi
           {/* Pricing */}
           <div className="border-t dark:border-gray-700 pt-4">
             <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-gray-500 uppercase tracking-wide">
-              <Tag size={15} /> Summary
+              <Tag size={15} /> {t('summary')}
             </h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-500">Subtotal</span>
+                <span className="text-gray-500">{t('subtotal')}</span>
                 <span>${Number(order.subtotal).toFixed(2)}</span>
               </div>
               {order.discountAmount && Number(order.discountAmount) > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>Discount {order.discountCode ? `(${order.discountCode})` : ''}</span>
+                  <span>{t('discount')}{order.discountCode ? ` (${order.discountCode})` : ''}</span>
                   <span>−${Number(order.discountAmount).toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-gray-500">Shipping</span>
-                <span>{Number(order.shippingCost) === 0 ? 'Free' : `$${Number(order.shippingCost).toFixed(2)}`}</span>
+                <span className="text-gray-500">{t('shippingLabel')}</span>
+                <span>{Number(order.shippingCost) === 0 ? t('free') : `$${Number(order.shippingCost).toFixed(2)}`}</span>
               </div>
               {Number(order.tax) > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Tax</span>
+                  <span className="text-gray-500">{t('tax')}</span>
                   <span>${Number(order.tax).toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between font-bold text-base border-t dark:border-gray-700 pt-2 mt-2">
-                <span>Total</span>
+                <span>{t('total')}</span>
                 <span>${Number(order.total).toFixed(2)}</span>
               </div>
             </div>
@@ -134,33 +140,33 @@ function OrderDetailModal({ order, onClose }: { order: Order; onClose: () => voi
           {/* Payment */}
           <div className="border-t dark:border-gray-700 pt-4">
             <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-gray-500 uppercase tracking-wide">
-              <CreditCard size={15} /> Payment
+              <CreditCard size={15} /> {t('payment')}
             </h3>
             <div className="text-sm space-y-1">
               <div className="flex justify-between">
-                <span className="text-gray-500">Method</span>
-                <span className="font-medium">{isTestOrder ? 'Test Order (no payment)' : 'Stripe'}</span>
+                <span className="text-gray-500">{t('method')}</span>
+                <span className="font-medium">{isTestOrder ? t('testOrder') : t('stripe')}</span>
               </div>
               {order.stripePaymentId && !isTestOrder && (
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Payment ID</span>
+                  <span className="text-gray-500">{t('paymentId')}</span>
                   <span className="font-mono text-xs text-gray-600 dark:text-gray-400">{order.stripePaymentId.slice(-12)}</span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Shipping info */}
-          {order.status === 'SHIPPED' || order.status === 'DELIVERED' ? (
+          {/* Shipping status */}
+          {(order.status === 'SHIPPED' || order.status === 'DELIVERED') && (
             <div className="border-t dark:border-gray-700 pt-4">
               <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm text-gray-500 uppercase tracking-wide">
-                <Truck size={15} /> Shipping
+                <Truck size={15} /> {t('shippingStatus')}
               </h3>
               <p className="text-sm text-gray-500">
-                {order.status === 'DELIVERED' ? 'Your order has been delivered.' : 'Your order is on its way.'}
+                {order.status === 'DELIVERED' ? t('delivered') : t('shipped')}
               </p>
             </div>
-          ) : null}
+          )}
         </div>
       </div>
     </div>
@@ -168,6 +174,7 @@ function OrderDetailModal({ order, onClose }: { order: Order; onClose: () => voi
 }
 
 function OrdersContent() {
+  const t = useTranslations('orders');
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -180,15 +187,15 @@ function OrdersContent() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1 max-w-4xl mx-auto px-4 py-10 w-full">
-        <h1 className="text-2xl font-bold mb-6">My Orders</h1>
+        <h1 className="text-2xl font-bold mb-6">{t('title')}</h1>
         {loading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full" />
           </div>
         ) : orders.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-gray-500 mb-4">No orders yet</p>
-            <Link href="/products" className="btn-primary">Start Shopping</Link>
+            <p className="text-gray-500 mb-4">{t('empty')}</p>
+            <Link href="/products" className="btn-primary">{t('startShopping')}</Link>
           </div>
         ) : (
           <div className="space-y-4">
@@ -200,7 +207,7 @@ function OrdersContent() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <p className="font-semibold">Order #{order.id.slice(-8).toUpperCase()}</p>
+                    <p className="font-semibold">{t('orderNumber', { num: order.id.slice(-8).toUpperCase() })}</p>
                     <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="flex items-center gap-4">
@@ -218,7 +225,7 @@ function OrdersContent() {
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-amber-600 mt-3 font-medium">Click to view details →</p>
+                <p className="text-xs text-amber-600 mt-3 font-medium">{t('clickDetails')}</p>
               </button>
             ))}
           </div>

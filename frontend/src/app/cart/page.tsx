@@ -26,8 +26,10 @@ interface Address {
   id: string;
   label: string;
   street: string;
+  numInterior: string | null;
+  numExterior: string | null;
+  colonia: string | null;
   city: string;
-  state: string;
   country: string;
   postalCode: string;
   isDefault: boolean;
@@ -35,6 +37,7 @@ interface Address {
 
 export default function CartPage() {
   const t = useTranslations('cart');
+  const ta = useTranslations('address');
   const { items, removeItem, updateItem, total } = useCartStore();
   const { user } = useAuthStore();
   const router = useRouter();
@@ -180,7 +183,7 @@ export default function CartPage() {
           {/* Summary */}
           <div className="lg:w-80">
             <div className="card p-6 space-y-4 sticky top-20">
-              <h2 className="font-bold text-lg">Order Summary</h2>
+              <h2 className="font-bold text-lg">{t('orderSummary')}</h2>
 
               {/* Coupon */}
               <div>
@@ -190,7 +193,7 @@ export default function CartPage() {
                       <Tag size={14} />
                       <span className="text-sm font-medium">{appliedDiscount.code ?? appliedDiscount.name}</span>
                       {appliedDiscount.type !== 'FREE_SHIPPING' && <span className="text-xs">−${appliedDiscount.savingsAmount.toFixed(2)}</span>}
-                      {appliedDiscount.type === 'FREE_SHIPPING' && <span className="text-xs">Free shipping</span>}
+                      {appliedDiscount.type === 'FREE_SHIPPING' && <span className="text-xs">{t('free')} shipping</span>}
                     </div>
                     <button onClick={removeCoupon} className="text-green-600 hover:text-green-800"><X size={14} /></button>
                   </div>
@@ -200,7 +203,7 @@ export default function CartPage() {
                       value={couponInput}
                       onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                       onKeyDown={(e) => e.key === 'Enter' && applyCoupon()}
-                      placeholder="Coupon code"
+                      placeholder={t('couponCode')}
                       className="input flex-1 text-sm py-2"
                     />
                     <button
@@ -208,7 +211,7 @@ export default function CartPage() {
                       disabled={couponLoading || !couponInput.trim()}
                       className="btn-secondary px-3 py-2 text-sm font-medium disabled:opacity-50"
                     >
-                      {couponLoading ? '…' : 'Apply'}
+                      {couponLoading ? '…' : t('apply')}
                     </button>
                   </div>
                 )}
@@ -218,7 +221,7 @@ export default function CartPage() {
               {user && (
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 flex items-center gap-1">
-                    <MapPin size={12} /> Shipping Address
+                    <MapPin size={12} /> {ta('shippingAddress')}
                   </p>
                   {addresses.length > 0 ? (
                     <div className="relative">
@@ -229,7 +232,7 @@ export default function CartPage() {
                       >
                         {addresses.map((a) => (
                           <option key={a.id} value={a.id}>
-                            {a.label} — {a.street}, {a.city}
+                            {a.label} — {a.street}{a.numInterior ? ` #${a.numInterior}` : ''}, {a.city}
                           </option>
                         ))}
                       </select>
@@ -240,7 +243,7 @@ export default function CartPage() {
                       href="/account/profile"
                       className="flex items-center gap-1.5 text-sm text-amber-600 hover:underline"
                     >
-                      <Plus size={13} /> Add a shipping address
+                      <Plus size={13} /> {ta('addShipping')}
                     </Link>
                   )}
                   {selectedAddr && (
@@ -259,13 +262,13 @@ export default function CartPage() {
                 </div>
                 {discountSavings > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>Discount</span>
+                    <span>{t('discount')}</span>
                     <span>−${discountSavings.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span className="text-gray-600">{t('shipping')}</span>
-                  <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+                  <span>{shipping === 0 ? t('free') : `$${shipping.toFixed(2)}`}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">{t('tax')}</span>
@@ -278,7 +281,7 @@ export default function CartPage() {
               </div>
 
               {shipping > 0 && !appliedDiscount && (
-                <p className="text-xs text-gray-500">Free shipping on orders over $50</p>
+                <p className="text-xs text-gray-500">{t('freeShippingNote')}</p>
               )}
 
               <button onClick={handleCheckout} className="btn-primary w-full py-3 text-base">
@@ -288,7 +291,7 @@ export default function CartPage() {
               {/* Test checkout */}
               <div className="border-t pt-3">
                 <p className="text-[11px] text-gray-400 text-center mb-2 flex items-center justify-center gap-1">
-                  <FlaskConical size={11} /> Test mode — no payment required
+                  <FlaskConical size={11} /> {t('testMode')}
                 </p>
                 <button
                   onClick={handleTestCheckout}
@@ -296,7 +299,7 @@ export default function CartPage() {
                   className="w-full py-2.5 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:border-amber-400 hover:text-amber-600 dark:hover:border-amber-500 dark:hover:text-amber-400 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   <FlaskConical size={15} />
-                  {testLoading ? 'Processing…' : 'Place Test Order'}
+                  {testLoading ? t('processing') : t('placeTestOrder')}
                 </button>
               </div>
 
