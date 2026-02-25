@@ -104,14 +104,14 @@ export default function Navbar() {
                     onClick={() => setUserMenuOpen(false)}
                     className="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    My Profile
+                    {t('myProfile')}
                   </Link>
                   <Link
                     href="/account/orders"
                     onClick={() => setUserMenuOpen(false)}
                     className="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    My Orders
+                    {t('myOrders')}
                   </Link>
                   <div className="border-t dark:border-gray-700 my-1" />
                   <button
@@ -148,7 +148,7 @@ export default function Navbar() {
             <Link href="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-amber-600">{t('admin')}</Link>
           )}
           {user && (
-            <Link href="/account/profile" onClick={() => setMobileOpen(false)} className="text-sm font-medium">My Profile</Link>
+            <Link href="/account/profile" onClick={() => setMobileOpen(false)} className="text-sm font-medium">{t('myProfile')}</Link>
           )}
         </div>
       )}

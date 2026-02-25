@@ -72,7 +72,7 @@ router.patch('/password', [
 
 // POST /api/users/addresses
 router.post('/addresses', async (req: AuthRequest, res: Response) => {
-  const { label, street, city, state, country, postalCode, isDefault } = req.body;
+  const { label, street, numInterior, numExterior, colonia, city, state, country, postalCode, isDefault } = req.body;
 
   try {
     if (isDefault) {
@@ -80,7 +80,7 @@ router.post('/addresses', async (req: AuthRequest, res: Response) => {
     }
 
     const address = await prisma.address.create({
-      data: { userId: req.user!.id, label, street, city, state, country, postalCode, isDefault: isDefault || false },
+      data: { userId: req.user!.id, label, street, numInterior: numInterior || null, numExterior: numExterior || null, colonia: colonia || null, city, state: state || null, country, postalCode, isDefault: isDefault || false },
     });
     return res.status(201).json(address);
   } catch {
@@ -90,13 +90,13 @@ router.post('/addresses', async (req: AuthRequest, res: Response) => {
 
 // PATCH /api/users/addresses/:id
 router.patch('/addresses/:id', async (req: AuthRequest, res: Response) => {
-  const { label, street, city, state, country, postalCode } = req.body;
+  const { label, street, numInterior, numExterior, colonia, city, state, country, postalCode } = req.body;
   try {
     const existing = await prisma.address.findFirst({ where: { id: req.params.id, userId: req.user!.id } });
     if (!existing) return res.status(404).json({ error: 'Address not found' });
     const address = await prisma.address.update({
       where: { id: req.params.id },
-      data: { label, street, city, state, country, postalCode },
+      data: { label, street, numInterior: numInterior || null, numExterior: numExterior || null, colonia: colonia || null, city, state: state || null, country, postalCode },
     });
     return res.json(address);
   } catch {
