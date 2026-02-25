@@ -17,18 +17,30 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [fragrancesOpen, setFragrancesOpen] = useState(false);
+  const [mobileFragrancesOpen, setMobileFragrancesOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const fragrancesRef = useRef<HTMLDivElement>(null);
 
-  // Close user menu when clicking outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false);
       }
+      if (fragrancesRef.current && !fragrancesRef.current.contains(e.target as Node)) {
+        setFragrancesOpen(false);
+      }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const fragranceLinks = [
+    { href: '/products', label: t('allProducts') },
+    { href: '/products?category=niche', label: 'Niche' },
+    { href: '/products?category=designer', label: 'Designer' },
+    { href: '/products?category=arabic', label: 'Arabic' },
+  ];
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b shadow-sm">
@@ -47,11 +59,44 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/" className="text-sm font-medium hover:text-amber-600 transition-colors">{t('home')}</Link>
-          <Link href="/products" className="text-sm font-medium hover:text-amber-600 transition-colors">{t('products')}</Link>
-          <Link href="/products?category=niche" className="text-sm font-medium hover:text-amber-600 transition-colors">Niche</Link>
-          <Link href="/products?category=designer" className="text-sm font-medium hover:text-amber-600 transition-colors">Designer</Link>
-          <Link href="/products?category=arabic" className="text-sm font-medium hover:text-amber-600 transition-colors">Arabic</Link>
+          <Link href="/" className="text-sm font-medium hover:text-amber-600 transition-colors">
+            {t('home')}
+          </Link>
+
+          {/* Fragrances dropdown */}
+          <div className="relative" ref={fragrancesRef}>
+            <button
+              onClick={() => setFragrancesOpen((v) => !v)}
+              className="flex items-center gap-1 text-sm font-medium hover:text-amber-600 transition-colors"
+            >
+              {t('products')}
+              <ChevronDown
+                size={14}
+                className={`transition-transform duration-200 ${fragrancesOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+            {fragrancesOpen && (
+              <div className="absolute left-0 top-full mt-1 w-48 bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-xl shadow-lg py-1 z-50">
+                {fragranceLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setFragrancesOpen(false)}
+                    className="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-amber-600 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Link href="/nosotros" className="text-sm font-medium hover:text-amber-600 transition-colors">
+            {t('about')}
+          </Link>
+          <Link href="/contacto" className="text-sm font-medium hover:text-amber-600 transition-colors">
+            {t('contact')}
+          </Link>
         </div>
 
         {/* Actions */}
@@ -76,7 +121,7 @@ export default function Navbar() {
             )}
           </Link>
 
-          {/* User menu — click-based, no gap flicker */}
+          {/* User menu */}
           {user ? (
             <div className="relative" ref={userMenuRef}>
               <button
@@ -138,17 +183,52 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t px-4 py-3 flex flex-col gap-3 bg-white dark:bg-gray-900">
-          <Link href="/" onClick={() => setMobileOpen(false)} className="text-sm font-medium">{t('home')}</Link>
-          <Link href="/products" onClick={() => setMobileOpen(false)} className="text-sm font-medium">{t('products')}</Link>
-          <Link href="/products?category=niche" onClick={() => setMobileOpen(false)} className="text-sm font-medium">Niche</Link>
-          <Link href="/products?category=designer" onClick={() => setMobileOpen(false)} className="text-sm font-medium">Designer</Link>
-          <Link href="/products?category=arabic" onClick={() => setMobileOpen(false)} className="text-sm font-medium">Arabic</Link>
+        <div className="md:hidden border-t px-4 py-3 flex flex-col gap-1 bg-white dark:bg-gray-900">
+          <Link href="/" onClick={() => setMobileOpen(false)} className="text-sm font-medium py-2">
+            {t('home')}
+          </Link>
+
+          {/* Fragrances expandable */}
+          <div>
+            <button
+              onClick={() => setMobileFragrancesOpen((v) => !v)}
+              className="flex items-center justify-between w-full text-sm font-medium py-2"
+            >
+              {t('products')}
+              <ChevronDown size={14} className={`transition-transform duration-200 ${mobileFragrancesOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {mobileFragrancesOpen && (
+              <div className="pl-4 flex flex-col gap-1 pb-1">
+                {fragranceLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="text-sm text-gray-600 dark:text-gray-400 py-1.5 hover:text-amber-600"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Link href="/nosotros" onClick={() => setMobileOpen(false)} className="text-sm font-medium py-2">
+            {t('about')}
+          </Link>
+          <Link href="/contacto" onClick={() => setMobileOpen(false)} className="text-sm font-medium py-2">
+            {t('contact')}
+          </Link>
+
           {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
-            <Link href="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-amber-600">{t('admin')}</Link>
+            <Link href="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-amber-600 py-2">
+              {t('admin')}
+            </Link>
           )}
           {user && (
-            <Link href="/account/profile" onClick={() => setMobileOpen(false)} className="text-sm font-medium">{t('myProfile')}</Link>
+            <Link href="/account/profile" onClick={() => setMobileOpen(false)} className="text-sm font-medium py-2">
+              {t('myProfile')}
+            </Link>
           )}
         </div>
       )}

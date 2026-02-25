@@ -15,6 +15,7 @@ import adminRoutes from './routes/admin.routes';
 import stripeRoutes from './routes/stripe.routes';
 import cmsRoutes from './routes/cms.routes';
 import discountRoutes from './routes/discount.routes';
+import contactRoutes from './routes/contact.routes';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -74,6 +75,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/cms', cmsRoutes);
 app.use('/api/discounts', discountRoutes);
+app.use('/api/contact', contactRoutes);
 
 // 404
 app.use((_req, res) => {

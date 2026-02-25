@@ -8,7 +8,10 @@
     "logout": "Log out",
     "admin": "Admin",
     "myProfile": "My Profile",
-    "myOrders": "My Orders"
+    "myOrders": "My Orders",
+    "about": "About Us",
+    "contact": "Contact",
+    "allProducts": "All Fragrances"
   },
   "home": {
     "hero": {
@@ -402,6 +405,52 @@
       "displayOrder": "Display Order",
       "ctaButton1": "CTA Button 1",
       "ctaButton2": "CTA Button 2 (optional)"
+    }
+  },
+  "about": {
+    "hero": {
+      "heading": "Our Story",
+      "subheading": "Crafting unique fragrance experiences since 2020"
+    },
+    "story": {
+      "heading": "The Art of Fragrance",
+      "body": "Founded with a passion for extraordinary scents, Maison de Parfum curates the finest fragrances from around the world. We believe that a great perfume is more than just a scent — it's an experience, a memory, an expression of your unique identity.\n\nOur collection spans the most prestigious fragrance houses, from rare niche perfumers to iconic designer maisons and the rich traditions of Arabic perfumery. Each fragrance is carefully selected to offer you an unparalleled olfactory journey."
+    },
+    "values": {
+      "heading": "Our Values",
+      "item1Title": "Authenticity",
+      "item1Desc": "Every fragrance in our collection is 100% authentic, sourced directly from authorized distributors.",
+      "item2Title": "Curation",
+      "item2Desc": "Our experts carefully select only the finest fragrances, ensuring an exceptional collection for discerning tastes.",
+      "item3Title": "Experience",
+      "item3Desc": "We're committed to providing a premium shopping experience from selection to delivery."
+    },
+    "team": {
+      "heading": "Meet Our Team"
+    }
+  },
+  "contact": {
+    "heading": "Get in Touch",
+    "subheading": "We'd love to hear from you. Send us a message and we'll respond as soon as possible.",
+    "form": {
+      "name": "Your Name",
+      "email": "Email Address",
+      "subject": "Subject",
+      "message": "Message",
+      "send": "Send Message",
+      "sending": "Sending...",
+      "success": "Message sent! We'll get back to you soon.",
+      "namePlaceholder": "John Doe",
+      "emailPlaceholder": "john@example.com",
+      "subjectPlaceholder": "How can we help?",
+      "messagePlaceholder": "Tell us more about your inquiry..."
+    },
+    "info": {
+      "title": "Contact Information",
+      "address": "123 Fragrance Avenue, Mexico City, Mexico",
+      "phone": "+52 55 1234 5678",
+      "email": "hello@maisonparfum.com",
+      "followUs": "Follow Us"
     }
   },
   "common": {

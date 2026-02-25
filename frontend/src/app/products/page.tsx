@@ -3,6 +3,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import ProductCard from '@/components/products/ProductCard';
 import ProductFilters from '@/components/products/ProductFilters';
+import CategoryCards from '@/components/products/CategoryCards';
 
 interface SearchParams {
   category?: string;
@@ -30,15 +31,35 @@ async function getProducts(params: SearchParams) {
   }
 }
 
+async function getCategories() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`, { next: { revalidate: 60 } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.categories ?? data ?? [];
+  } catch {
+    return [];
+  }
+}
+
 export default async function ProductsPage({ searchParams }: { searchParams: SearchParams }) {
   const t = await getTranslations('products');
-  const { products, pagination } = await getProducts(searchParams);
+  const [{ products, pagination }, categories] = await Promise.all([
+    getProducts(searchParams),
+    getCategories(),
+  ]);
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1 max-w-7xl mx-auto px-4 py-10 w-full">
-        <h1 className="text-3xl font-bold mb-8">{t('title')}</h1>
+        <h1 className="text-3xl font-bold mb-6">{t('title')}</h1>
+
+        {/* Category cards */}
+        {categories.length > 0 && (
+          <CategoryCards categories={categories} selectedCategory={searchParams.category} />
+        )}
+
         <div className="flex flex-col md:flex-row gap-8">
           <aside className="w-full md:w-64 shrink-0">
             <ProductFilters />
