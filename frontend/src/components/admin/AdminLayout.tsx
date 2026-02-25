@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Package, ShoppingCart, Users, Tag, Layers, Users2, Percent, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, Tag, Layers, Users2, Percent, LogOut, Sun, Moon } from 'lucide-react';
 import { clsx } from 'clsx';
 import dynamic from 'next/dynamic';
+import { useTheme } from 'next-themes';
 import { useAuthStore } from '@/store/auth.store';
+import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
 const NotificationBell = dynamic(() => import('./NotificationBell'), { ssr: false });
 
 const navItems = [
@@ -24,6 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const { theme, setTheme } = useTheme();
 
   const currentNav = navItems.find((item) =>
     item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href)
@@ -91,9 +94,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               {currentNav?.label ?? 'Admin Panel'}
             </h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            >
+              {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
+            <NotificationBell />
             {user && (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 ml-2 pl-2 border-l dark:border-gray-700">
                 <div className="text-right hidden sm:block">
                   <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 leading-none">
                     {user.firstName} {user.lastName}
@@ -107,7 +119,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </div>
               </div>
             )}
-            <NotificationBell />
           </div>
         </header>
 
