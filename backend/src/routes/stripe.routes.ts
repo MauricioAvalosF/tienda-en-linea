@@ -16,7 +16,7 @@ function computeDiscount(type: string, value: number, subtotal: number): number 
 
 // POST /api/stripe/checkout — create Stripe checkout session
 router.post('/checkout', authenticate, async (req: AuthRequest, res: Response) => {
-  const { couponCode } = req.body;
+  const { couponCode, addressId } = req.body;
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user!.id },
@@ -129,6 +129,7 @@ router.post('/checkout', authenticate, async (req: AuthRequest, res: Response) =
         discountId: bestDiscount?.id ?? '',
         discountCode: bestDiscount?.code ?? '',
         discountAmount: discountAmount.toFixed(2),
+        addressId: addressId ?? '',
       },
       customer_email: req.user!.email,
     });
@@ -158,6 +159,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
     const discountId = session.metadata?.discountId;
     const discountCode = session.metadata?.discountCode;
     const discountAmount = parseFloat(session.metadata?.discountAmount ?? '0');
+    const addressId = session.metadata?.addressId || null;
 
     if (userId && cartId) {
       try {
@@ -180,6 +182,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
               total,
               discountCode: discountCode || null,
               discountAmount: discountAmount > 0 ? discountAmount : null,
+              addressId: addressId || null,
               status: 'PAID',
               stripeSessionId: session.id,
               stripePaymentId: session.payment_intent as string,
@@ -225,6 +228,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
 
 // POST /api/stripe/test-checkout — create order directly, no Stripe (dev/test only)
 router.post('/test-checkout', authenticate, async (req: AuthRequest, res: Response) => {
+  const { addressId } = req.body;
   try {
     const cart = await prisma.cart.findUnique({
       where: { userId: req.user!.id },
@@ -250,6 +254,7 @@ router.post('/test-checkout', authenticate, async (req: AuthRequest, res: Respon
         shippingCost: shipping,
         tax,
         total,
+        addressId: addressId || null,
         status: 'PAID',
         stripeSessionId: `test_${Date.now()}`,
         items: {

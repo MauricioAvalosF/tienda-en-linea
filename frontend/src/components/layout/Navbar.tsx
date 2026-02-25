@@ -90,7 +90,7 @@ export default function Navbar() {
 
               {userMenuOpen && (
                 <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-xl shadow-lg py-1 z-50">
-                  {user.role === 'ADMIN' && (
+                  {(user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') && (
                     <Link
                       href="/admin"
                       onClick={() => setUserMenuOpen(false)}
@@ -100,11 +100,18 @@ export default function Navbar() {
                     </Link>
                   )}
                   <Link
+                    href="/account/profile"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    My Profile
+                  </Link>
+                  <Link
                     href="/account/orders"
                     onClick={() => setUserMenuOpen(false)}
                     className="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    {t('account')}
+                    My Orders
                   </Link>
                   <div className="border-t dark:border-gray-700 my-1" />
                   <button
@@ -137,8 +144,11 @@ export default function Navbar() {
           <Link href="/products?category=niche" onClick={() => setMobileOpen(false)} className="text-sm font-medium">Niche</Link>
           <Link href="/products?category=designer" onClick={() => setMobileOpen(false)} className="text-sm font-medium">Designer</Link>
           <Link href="/products?category=arabic" onClick={() => setMobileOpen(false)} className="text-sm font-medium">Arabic</Link>
-          {user?.role === 'ADMIN' && (
+          {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
             <Link href="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-amber-600">{t('admin')}</Link>
+          )}
+          {user && (
+            <Link href="/account/profile" onClick={() => setMobileOpen(false)} className="text-sm font-medium">My Profile</Link>
           )}
         </div>
       )}

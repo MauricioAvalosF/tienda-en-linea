@@ -3,8 +3,8 @@
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
-import { Trash2, Minus, Plus, ShoppingBag, Tag, X, FlaskConical } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Trash2, Minus, Plus, ShoppingBag, Tag, X, FlaskConical, MapPin, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useCartStore } from '@/store/cart.store';
 import { useAuthStore } from '@/store/auth.store';
@@ -22,6 +22,17 @@ interface AppliedDiscount {
   savingsAmount: number;
 }
 
+interface Address {
+  id: string;
+  label: string;
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+  isDefault: boolean;
+}
+
 export default function CartPage() {
   const t = useTranslations('cart');
   const { items, removeItem, updateItem, total } = useCartStore();
@@ -32,13 +43,23 @@ export default function CartPage() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [appliedDiscount, setAppliedDiscount] = useState<AppliedDiscount | null>(null);
   const [testLoading, setTestLoading] = useState(false);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+
+  useEffect(() => {
+    if (user) {
+      api.get('/users/profile').then((r) => {
+        const addrs: Address[] = r.data.addresses ?? [];
+        setAddresses(addrs);
+        const def = addrs.find((a) => a.isDefault) ?? addrs[0];
+        if (def) setSelectedAddressId(def.id);
+      }).catch(() => {});
+    }
+  }, [user]);
 
   const applyCoupon = async () => {
     if (!couponInput.trim()) return;
-    if (!user) {
-      toast.error('Please log in to apply a coupon');
-      return;
-    }
+    if (!user) { toast.error('Please log in to apply a coupon'); return; }
     setCouponLoading(true);
     try {
       const { data } = await api.post('/discounts/validate', {
@@ -56,19 +77,14 @@ export default function CartPage() {
     }
   };
 
-  const removeCoupon = () => {
-    setAppliedDiscount(null);
-    toast.success('Coupon removed');
-  };
+  const removeCoupon = () => { setAppliedDiscount(null); toast.success('Coupon removed'); };
 
   const handleCheckout = async () => {
-    if (!user) {
-      router.push('/auth/login');
-      return;
-    }
+    if (!user) { router.push('/auth/login'); return; }
     try {
       const { data } = await api.post('/stripe/checkout', {
         couponCode: appliedDiscount?.code ?? null,
+        addressId: selectedAddressId || null,
       });
       window.location.href = data.url;
     } catch {
@@ -77,13 +93,10 @@ export default function CartPage() {
   };
 
   const handleTestCheckout = async () => {
-    if (!user) {
-      router.push('/auth/login');
-      return;
-    }
+    if (!user) { router.push('/auth/login'); return; }
     setTestLoading(true);
     try {
-      await api.post('/stripe/test-checkout');
+      await api.post('/stripe/test-checkout', { addressId: selectedAddressId || null });
       router.push('/checkout/success');
     } catch {
       toast.error('Test checkout failed');
@@ -112,12 +125,15 @@ export default function CartPage() {
   const discountSavings = appliedDiscount?.type === 'FREE_SHIPPING' ? 0 : (appliedDiscount?.savingsAmount ?? 0);
   const orderTotal = Math.max(0, subtotal + shipping + tax - discountSavings);
 
+  const selectedAddr = addresses.find((a) => a.id === selectedAddressId);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1 max-w-6xl mx-auto px-4 py-10 w-full">
         <h1 className="text-3xl font-bold mb-8">{t('title')}</h1>
         <div className="flex flex-col lg:flex-row gap-8">
+
           {/* Items */}
           <div className="flex-1 space-y-4">
             {items.map((item) => (
@@ -149,10 +165,7 @@ export default function CartPage() {
                     >
                       <Plus size={14} />
                     </button>
-                    <button
-                      onClick={() => removeItem(item.productId)}
-                      className="ml-auto text-red-500 hover:text-red-700 p-1"
-                    >
+                    <button onClick={() => removeItem(item.productId)} className="ml-auto text-red-500 hover:text-red-700 p-1">
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -169,23 +182,17 @@ export default function CartPage() {
             <div className="card p-6 space-y-4 sticky top-20">
               <h2 className="font-bold text-lg">Order Summary</h2>
 
-              {/* Coupon Input */}
+              {/* Coupon */}
               <div>
                 {appliedDiscount ? (
                   <div className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2">
                     <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
                       <Tag size={14} />
                       <span className="text-sm font-medium">{appliedDiscount.code ?? appliedDiscount.name}</span>
-                      {appliedDiscount.type !== 'FREE_SHIPPING' && (
-                        <span className="text-xs">−${appliedDiscount.savingsAmount.toFixed(2)}</span>
-                      )}
-                      {appliedDiscount.type === 'FREE_SHIPPING' && (
-                        <span className="text-xs">Free shipping</span>
-                      )}
+                      {appliedDiscount.type !== 'FREE_SHIPPING' && <span className="text-xs">−${appliedDiscount.savingsAmount.toFixed(2)}</span>}
+                      {appliedDiscount.type === 'FREE_SHIPPING' && <span className="text-xs">Free shipping</span>}
                     </div>
-                    <button onClick={removeCoupon} className="text-green-600 hover:text-green-800">
-                      <X size={14} />
-                    </button>
+                    <button onClick={removeCoupon} className="text-green-600 hover:text-green-800"><X size={14} /></button>
                   </div>
                 ) : (
                   <div className="flex gap-2">
@@ -207,6 +214,44 @@ export default function CartPage() {
                 )}
               </div>
 
+              {/* Shipping address */}
+              {user && (
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                    <MapPin size={12} /> Shipping Address
+                  </p>
+                  {addresses.length > 0 ? (
+                    <div className="relative">
+                      <select
+                        value={selectedAddressId}
+                        onChange={(e) => setSelectedAddressId(e.target.value)}
+                        className="input text-sm py-2 pr-8 appearance-none w-full"
+                      >
+                        {addresses.map((a) => (
+                          <option key={a.id} value={a.id}>
+                            {a.label} — {a.street}, {a.city}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" />
+                    </div>
+                  ) : (
+                    <Link
+                      href="/account/profile"
+                      className="flex items-center gap-1.5 text-sm text-amber-600 hover:underline"
+                    >
+                      <Plus size={13} /> Add a shipping address
+                    </Link>
+                  )}
+                  {selectedAddr && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {selectedAddr.city}{selectedAddr.state ? `, ${selectedAddr.state}` : ''} {selectedAddr.postalCode}, {selectedAddr.country}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Pricing */}
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">{t('subtotal')}</span>
@@ -240,7 +285,7 @@ export default function CartPage() {
                 {t('checkout')}
               </button>
 
-              {/* Test checkout — bypass Stripe for testing */}
+              {/* Test checkout */}
               <div className="border-t pt-3">
                 <p className="text-[11px] text-gray-400 text-center mb-2 flex items-center justify-center gap-1">
                   <FlaskConical size={11} /> Test mode — no payment required

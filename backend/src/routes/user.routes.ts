@@ -88,6 +88,35 @@ router.post('/addresses', async (req: AuthRequest, res: Response) => {
   }
 });
 
+// PATCH /api/users/addresses/:id
+router.patch('/addresses/:id', async (req: AuthRequest, res: Response) => {
+  const { label, street, city, state, country, postalCode } = req.body;
+  try {
+    const existing = await prisma.address.findFirst({ where: { id: req.params.id, userId: req.user!.id } });
+    if (!existing) return res.status(404).json({ error: 'Address not found' });
+    const address = await prisma.address.update({
+      where: { id: req.params.id },
+      data: { label, street, city, state, country, postalCode },
+    });
+    return res.json(address);
+  } catch {
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// PATCH /api/users/addresses/:id/set-default
+router.patch('/addresses/:id/set-default', async (req: AuthRequest, res: Response) => {
+  try {
+    const existing = await prisma.address.findFirst({ where: { id: req.params.id, userId: req.user!.id } });
+    if (!existing) return res.status(404).json({ error: 'Address not found' });
+    await prisma.address.updateMany({ where: { userId: req.user!.id }, data: { isDefault: false } });
+    const address = await prisma.address.update({ where: { id: req.params.id }, data: { isDefault: true } });
+    return res.json(address);
+  } catch {
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // DELETE /api/users/addresses/:id
 router.delete('/addresses/:id', async (req: AuthRequest, res: Response) => {
   try {

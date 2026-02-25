@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, ShoppingCart, Users, Tag, Home, Layers, Users2, Percent } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, Package, ShoppingCart, Users, Tag, Layers, Users2, Percent, LogOut } from 'lucide-react';
 import { clsx } from 'clsx';
 import dynamic from 'next/dynamic';
 import { useAuthStore } from '@/store/auth.store';
@@ -22,12 +22,19 @@ const navItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user } = useAuthStore();
+  const router = useRouter();
+  const { user, logout } = useAuthStore();
 
-  // Derive page title from current path
   const currentNav = navItems.find((item) =>
     item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href)
   );
+
+  const handleLogout = () => {
+    logout();
+    router.push('/auth/login');
+  };
+
+  const PageIcon = currentNav?.icon;
 
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-gray-950">
@@ -65,9 +72,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
         <div className="p-4 border-t">
-          <Link href="/" className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
-            <Home size={15} /> Back to Store
-          </Link>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-sm text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors w-full"
+          >
+            <LogOut size={15} /> Sign Out
+          </button>
         </div>
       </aside>
 
@@ -75,9 +85,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top header */}
         <header className="h-14 bg-white dark:bg-gray-900 border-b flex items-center justify-between px-6 shrink-0">
-          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            {currentNav?.label ?? 'Admin'}
-          </p>
+          <div className="flex items-center gap-2.5">
+            {PageIcon && <PageIcon size={18} className="text-amber-600 dark:text-amber-400" />}
+            <h1 className="text-base font-bold text-gray-800 dark:text-gray-200 tracking-tight">
+              {currentNav?.label ?? 'Admin Panel'}
+            </h1>
+          </div>
           <div className="flex items-center gap-4">
             {user && (
               <div className="flex items-center gap-3">
