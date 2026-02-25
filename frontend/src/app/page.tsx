@@ -11,7 +11,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 async function getCmsData() {
   try {
-    const res = await fetch(`${API}/cms`, { next: { revalidate: 60 } });
+    const res = await fetch(`${API}/cms`, { cache: 'no-store' });
     if (!res.ok) return { sections: [], settings: [] };
     return res.json();
   } catch {
@@ -21,7 +21,7 @@ async function getCmsData() {
 
 async function getFeaturedProducts() {
   try {
-    const res = await fetch(`${API}/products?featured=true&limit=8`, { next: { revalidate: 60 } });
+    const res = await fetch(`${API}/products?featured=true&limit=8`, { next: { revalidate: 30 } });
     if (!res.ok) return [];
     const data = await res.json();
     return data.products || [];
@@ -32,7 +32,7 @@ async function getFeaturedProducts() {
 
 async function getCategories() {
   try {
-    const res = await fetch(`${API}/categories`, { next: { revalidate: 300 } });
+    const res = await fetch(`${API}/categories`, { next: { revalidate: 60 } });
     if (!res.ok) return [];
     return res.json();
   } catch {
