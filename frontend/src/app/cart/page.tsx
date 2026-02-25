@@ -248,7 +248,7 @@ export default function CartPage() {
                   )}
                   {selectedAddr && (
                     <p className="text-xs text-gray-400 mt-1">
-                      {selectedAddr.city}{selectedAddr.state ? `, ${selectedAddr.state}` : ''} {selectedAddr.postalCode}, {selectedAddr.country}
+                      {selectedAddr.city} {selectedAddr.postalCode}, {selectedAddr.country}
                     </p>
                   )}
                 </div>
