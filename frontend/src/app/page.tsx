@@ -66,19 +66,29 @@ export default async function HomePage() {
         <HeroSection cms={heroSection} />
 
         {/* Featured Products */}
-        <section className="py-16 px-4 max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-10">{t('featured')}</h2>
+        <section className="py-20 px-4 max-w-7xl mx-auto">
+          <div className="text-center mb-12" data-aos="fade-up">
+            <p className="text-xs font-semibold uppercase tracking-widest text-amber-600 mb-3">Selection</p>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">{t('featured')}</h2>
+          </div>
+
           {products.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {products.map((product: Record<string, unknown>) => (
-                <ProductCard key={product.id as string} product={product} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {products.map((product: Record<string, unknown>, i: number) => (
+                <div key={product.id as string} data-aos="fade-up" data-aos-delay={String(i * 60)}>
+                  <ProductCard product={product} />
+                </div>
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500">No featured products yet.</p>
+            <p className="text-center text-gray-400 text-sm">No featured products yet.</p>
           )}
-          <div className="text-center mt-10">
-            <Link href="/products" className="bg-amber-600 hover:bg-amber-500 text-white font-semibold px-8 py-3 rounded-xl transition-colors">
+
+          <div className="text-center mt-12" data-aos="fade-up">
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold px-8 py-3.5 rounded-full hover:opacity-80 active:scale-95 transition-all text-sm"
+            >
               View All Fragrances
             </Link>
           </div>

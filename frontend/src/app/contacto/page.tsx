@@ -38,37 +38,51 @@ export default async function ContactoPage() {
       <main className="flex-1">
 
         {/* Header */}
-        <section className="bg-gradient-to-br from-amber-900 via-amber-800 to-stone-900 py-16 text-center">
-          <h1 className="text-4xl font-bold text-white mb-3">{t('heading')}</h1>
-          <p className="text-amber-200 max-w-lg mx-auto">{t('subheading')}</p>
+        <section className="relative overflow-hidden bg-gray-950 py-20 text-center">
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ backgroundImage: 'radial-gradient(ellipse 60% 60% at 50% 120%,rgba(217,119,6,0.15),transparent)' }}
+          />
+          <div className="relative z-10 px-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-amber-500 mb-4" data-aos="fade-down">
+              Maison de Parfum
+            </p>
+            <h1 className="text-4xl md:text-5xl font-semibold text-white tracking-tight mb-3" data-aos="fade-up" data-aos-delay="100">
+              {t('heading')}
+            </h1>
+            <p className="text-gray-400 max-w-md mx-auto text-sm" data-aos="fade-up" data-aos-delay="200">
+              {t('subheading')}
+            </p>
+          </div>
         </section>
 
         {/* Content */}
-        <section className="max-w-7xl mx-auto px-4 py-14">
+        <section className="max-w-7xl mx-auto px-4 py-16">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
 
-            {/* Form — wider column */}
-            <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-8">
+            {/* Form */}
+            <div className="lg:col-span-3 bg-white dark:bg-gray-900 rounded-3xl shadow-sm p-8" data-aos="fade-right">
               <ContactForm />
             </div>
 
             {/* Info */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-8" data-aos="fade-left" data-aos-delay="100">
               <div>
-                <h2 className="text-xl font-bold mb-5 text-amber-700 dark:text-amber-400">{t('info.title')}</h2>
+                <h2 className="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-5">
+                  {t('info.title')}
+                </h2>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">
-                    <MapPin size={20} className="mt-0.5 text-amber-600 shrink-0" />
-                    <span className="text-sm text-gray-600 dark:text-gray-300">{address}</span>
+                    <MapPin size={18} className="mt-0.5 text-amber-600 shrink-0" />
+                    <span className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{address}</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <Phone size={20} className="text-amber-600 shrink-0" />
+                    <Phone size={18} className="text-amber-600 shrink-0" />
                     <a href={`tel:${phone}`} className="text-sm text-gray-600 dark:text-gray-300 hover:text-amber-600 transition-colors">
                       {phone}
                     </a>
                   </li>
                   <li className="flex items-center gap-3">
-                    <Mail size={20} className="text-amber-600 shrink-0" />
+                    <Mail size={18} className="text-amber-600 shrink-0" />
                     <a href={`mailto:${email}`} className="text-sm text-gray-600 dark:text-gray-300 hover:text-amber-600 transition-colors">
                       {email}
                     </a>
@@ -78,48 +92,38 @@ export default async function ContactoPage() {
 
               {(instagram || facebook || whatsapp) && (
                 <div>
-                  <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-500 mb-4">{t('info.followUs')}</h3>
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+                    {t('info.followUs')}
+                  </h3>
                   <div className="flex gap-3">
                     {instagram && (
-                      <a
-                        href={instagram}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-amber-100 dark:hover:bg-amber-900/30 hover:text-amber-600 transition-colors"
-                      >
-                        <Instagram size={20} />
+                      <a href={instagram} target="_blank" rel="noopener noreferrer"
+                        className="p-3 rounded-2xl bg-gray-100 dark:bg-gray-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600 transition-all">
+                        <Instagram size={18} />
                       </a>
                     )}
                     {facebook && (
-                      <a
-                        href={facebook}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-amber-100 dark:hover:bg-amber-900/30 hover:text-amber-600 transition-colors"
-                      >
-                        <Facebook size={20} />
+                      <a href={facebook} target="_blank" rel="noopener noreferrer"
+                        className="p-3 rounded-2xl bg-gray-100 dark:bg-gray-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600 transition-all">
+                        <Facebook size={18} />
                       </a>
                     )}
                     {whatsapp && (
-                      <a
-                        href={`https://wa.me/${whatsapp.replace(/\D/g, '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-amber-100 dark:hover:bg-amber-900/30 hover:text-amber-600 transition-colors"
-                      >
-                        <Phone size={20} />
+                      <a href={`https://wa.me/${whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
+                        className="p-3 rounded-2xl bg-gray-100 dark:bg-gray-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600 transition-all">
+                        <Phone size={18} />
                       </a>
                     )}
                   </div>
                 </div>
               )}
 
-              {/* Decorative card */}
-              <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-6">
-                <p className="text-3xl mb-2">🌸</p>
-                <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-1">Maison de Parfum</p>
-                <p className="text-xs text-amber-700/70 dark:text-amber-400/70 leading-relaxed">
-                  {`We reply within 24 hours — Monday to Saturday.`}
+              {/* Info card */}
+              <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 rounded-3xl p-6">
+                <p className="text-3xl mb-3">🌸</p>
+                <p className="text-sm font-semibold text-amber-900 dark:text-amber-300 mb-1">We reply fast</p>
+                <p className="text-xs text-amber-800/60 dark:text-amber-400/60 leading-relaxed">
+                  Our team replies within 24 hours, Monday to Saturday.
                 </p>
               </div>
             </div>

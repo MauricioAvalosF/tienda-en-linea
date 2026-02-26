@@ -6,11 +6,14 @@ export default function AOSInit() {
   useEffect(() => {
     import('aos').then((AOS) => {
       AOS.default.init({
-        duration: 650,
+        duration: 700,
         easing: 'ease-out-cubic',
         once: true,
-        offset: 30,
+        offset: 40,
+        delay: 0,
       });
+      // Re-scan after full page load (catches lazy-rendered elements)
+      window.addEventListener('load', () => AOS.default.refresh(), { once: true });
     });
   }, []);
   return null;

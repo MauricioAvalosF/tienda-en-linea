@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import toast from 'react-hot-toast';
+import { ArrowRight } from 'lucide-react';
 
 export default function NewsletterSection() {
   const t = useTranslations('home.newsletter');
@@ -17,21 +18,29 @@ export default function NewsletterSection() {
   };
 
   return (
-    <section className="py-16 bg-primary-600 text-white">
-      <div className="max-w-2xl mx-auto px-4 text-center">
-        <h2 className="text-3xl font-bold mb-3">{t('title')}</h2>
-        <p className="text-primary-100 mb-8">{t('subtitle')}</p>
-        <form onSubmit={handleSubmit} className="flex gap-3 max-w-md mx-auto">
+    <section className="py-24 bg-gray-950 text-white relative overflow-hidden">
+      {/* subtle radial glow */}
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ backgroundImage: 'radial-gradient(ellipse 60% 60% at 50% 110%,rgba(217,119,6,0.15),transparent)' }}
+      />
+      <div className="relative max-w-xl mx-auto px-4 text-center" data-aos="fade-up">
+        <p className="text-xs font-semibold uppercase tracking-widest text-amber-500 mb-4">Newsletter</p>
+        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mb-3">{t('title')}</h2>
+        <p className="text-gray-400 mb-8 text-sm leading-relaxed">{t('subtitle')}</p>
+        <form onSubmit={handleSubmit} className="flex gap-2 max-w-sm mx-auto">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t('placeholder')}
             required
-            className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
+            className="flex-1 px-4 py-3 rounded-full bg-white/10 border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-white/30 transition"
           />
-          <button type="submit" className="bg-white text-primary-700 font-semibold px-6 py-3 rounded-lg hover:bg-primary-50 transition-colors">
-            {t('button')}
+          <button
+            type="submit"
+            className="flex items-center gap-1.5 bg-white text-gray-900 font-semibold px-5 py-3 rounded-full hover:bg-gray-100 active:scale-95 transition-all text-sm whitespace-nowrap"
+          >
+            {t('button')} <ArrowRight size={14} />
           </button>
         </form>
       </div>

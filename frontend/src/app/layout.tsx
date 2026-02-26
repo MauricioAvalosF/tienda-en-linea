@@ -5,6 +5,7 @@ import { getLocale, getMessages } from 'next-intl/server';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'react-hot-toast';
 import AOSInit from '@/components/utils/AOSInit';
+import 'aos/dist/aos.css';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
