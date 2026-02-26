@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useCartStore } from '@/store/cart.store';
 import { useAuthStore } from '@/store/auth.store';
@@ -32,6 +32,10 @@ export default function ProductCard({ product }: { product: Record<string, unkno
 
   const displayName = locale === 'es' ? p.nameEs : p.name;
   const inStock = p.stock > 0;
+  const discount =
+    p.comparePrice && p.comparePrice > p.price
+      ? Math.round((1 - p.price / p.comparePrice) * 100)
+      : null;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -41,60 +45,82 @@ export default function ProductCard({ product }: { product: Record<string, unkno
     }
     try {
       await addItem(p.id);
-      toast.success(`${displayName} added to cart`);
+      toast.success(`${displayName} added`);
     } catch {
       toast.error('Failed to add to cart');
     }
   };
 
   return (
-    <Link href={`/products/${p.slug}`} className="card group overflow-hidden hover:shadow-md transition-shadow">
-      {/* Image */}
-      <div className="relative aspect-square bg-gray-100 dark:bg-gray-800">
-        {p.imageUrls?.[0] ? (
-          <Image
-            src={p.imageUrls[0]}
-            alt={displayName}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">No image</div>
-        )}
-        {p.comparePrice && p.comparePrice > p.price && (
-          <span className="absolute top-2 left-2 badge bg-red-100 text-red-700">
-            -{Math.round((1 - p.price / p.comparePrice) * 100)}%
-          </span>
-        )}
-        {!inStock && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="text-white font-semibold">{t('outOfStock')}</span>
-          </div>
-        )}
-      </div>
+    <Link href={`/products/${p.slug}`} className="group block">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
 
-      {/* Info */}
-      <div className="p-4">
-        {p.category && (
-          <p className="text-xs text-gray-500 mb-1">{locale === 'es' ? p.category.nameEs : p.category.name}</p>
-        )}
-        <h3 className="font-semibold text-sm line-clamp-2 mb-2 group-hover:text-primary-600 transition-colors">
-          {displayName}
-        </h3>
-        <div className="flex items-center gap-2 mb-3">
-          <span className="font-bold text-lg">${Number(p.price).toFixed(2)}</span>
-          {p.comparePrice && p.comparePrice > p.price && (
-            <span className="text-sm text-gray-400 line-through">${Number(p.comparePrice).toFixed(2)}</span>
+        {/* Image */}
+        <div className="relative aspect-square bg-gray-50 dark:bg-gray-800 overflow-hidden">
+          {p.imageUrls?.[0] ? (
+            <Image
+              src={p.imageUrls[0]}
+              alt={displayName}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-4xl opacity-20">🌸</span>
+            </div>
+          )}
+
+          {/* Badges */}
+          <div className="absolute top-3 left-3 flex gap-1.5">
+            {discount && (
+              <span className="bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                -{discount}%
+              </span>
+            )}
+            {p.isFeatured && !discount && (
+              <span className="bg-amber-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                Featured
+              </span>
+            )}
+          </div>
+
+          {/* Out of stock overlay */}
+          {!inStock && (
+            <div className="absolute inset-0 bg-white/60 dark:bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
+              <span className="text-xs font-semibold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+                {t('outOfStock')}
+              </span>
+            </div>
           )}
         </div>
-        <button
-          onClick={handleAddToCart}
-          disabled={!inStock || isLoading}
-          className="w-full btn-primary flex items-center justify-center gap-2 text-sm py-2"
-        >
-          <ShoppingCart size={16} />
-          {t('addToCart')}
-        </button>
+
+        {/* Info */}
+        <div className="p-4">
+          {p.category && (
+            <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">
+              {locale === 'es' ? p.category.nameEs : p.category.name}
+            </p>
+          )}
+          <h3 className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2 mb-3 leading-snug">
+            {displayName}
+          </h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-baseline gap-2">
+              <span className="text-base font-semibold">${Number(p.price).toFixed(2)}</span>
+              {p.comparePrice && p.comparePrice > p.price && (
+                <span className="text-xs text-gray-400 line-through">${Number(p.comparePrice).toFixed(2)}</span>
+              )}
+            </div>
+            <button
+              onClick={handleAddToCart}
+              disabled={!inStock || isLoading}
+              className="flex items-center gap-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-medium px-3 py-1.5 rounded-full hover:opacity-75 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <ShoppingBag size={12} />
+              {inStock ? 'Add' : '—'}
+            </button>
+          </div>
+        </div>
       </div>
     </Link>
   );

@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'react-hot-toast';
+import AOSInit from '@/components/utils/AOSInit';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -22,6 +23,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <NextIntlClientProvider messages={messages}>
+            <AOSInit />
             {children}
             <Toaster position="top-right" />
           </NextIntlClientProvider>
