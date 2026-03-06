@@ -11,8 +11,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Tienda en Línea',
-  description: 'Your online store for quality products',
+  title: 'Maison de Parfum — Luxury Fragrances',
+  description: 'Discover an exclusive collection of niche, designer, and Arabic fragrances from the world\'s finest houses.',
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

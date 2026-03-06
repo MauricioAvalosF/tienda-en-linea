@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import Logo from './Logo';
 import { ShoppingCart, User, Menu, X, Sun, Moon, ChevronDown } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useState, useRef, useEffect } from 'react';
@@ -46,16 +46,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b shadow-sm">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center">
-          <Image
-            src="/logo.jpg"
-            alt="Maison de Parfum"
-            width={80}
-            height={80}
-            className="h-12 w-auto object-contain"
-            priority
-          />
-        </Link>
+        <Logo />
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
