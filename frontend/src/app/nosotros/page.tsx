@@ -76,7 +76,7 @@ export default async function NosotrosPage() {
           {heroImage && <div className="absolute inset-0 bg-black/55" />}
           <div className="relative z-10 text-center px-4 py-24">
             <p className="text-xs font-semibold uppercase tracking-widest text-amber-400/80 mb-4" data-aos="fade-down">
-              Maison de Parfum
+              Tienda en Línea
             </p>
             <h1 className="text-4xl md:text-6xl font-semibold text-white tracking-tight mb-4" data-aos="fade-up" data-aos-delay="100">
               {heroHeading}

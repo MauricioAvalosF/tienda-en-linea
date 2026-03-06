@@ -44,7 +44,7 @@ export default async function ContactoPage() {
           />
           <div className="relative z-10 px-4">
             <p className="text-xs font-semibold uppercase tracking-widest text-amber-500 mb-4" data-aos="fade-down">
-              Maison de Parfum
+              Tienda en Línea
             </p>
             <h1 className="text-4xl md:text-5xl font-semibold text-white tracking-tight mb-3" data-aos="fade-up" data-aos-delay="100">
               {t('heading')}

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+import Logo from '@/components/layout/Logo';
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, Package, ShoppingCart, Users, Tag, Layers, Users2, Percent, LogOut, Sun, Moon } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -46,15 +46,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar */}
       <aside className="w-60 bg-white dark:bg-gray-900 border-r shrink-0 flex flex-col">
         <div className="p-4 border-b flex items-center justify-center">
-          <Link href="/admin">
-            <Image
-              src="/logo.jpg"
-              alt="Maison de Parfum"
-              width={80}
-              height={80}
-              className="h-14 w-auto object-contain"
-            />
-          </Link>
+          <Logo href="/admin" />
         </div>
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
           {NAV_ITEMS.map((item) => {
